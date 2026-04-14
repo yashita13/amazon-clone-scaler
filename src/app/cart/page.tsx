@@ -31,7 +31,7 @@ export default function Cart() {
       <div className="flex flex-col lg:flex-row gap-6">
         
         {/* Left: Cart Items */}
-        <div className="flex-1 bg-white p-6 rounded shadow-sm">
+        <div className="flex-1 bg-white p-8 rounded shadow-sm">
           <h1 className="text-3xl font-medium mb-2 border-b pb-4">Shopping Cart</h1>
           <p className="text-right text-gray-600 text-sm mb-4">Price</p>
 
@@ -117,7 +117,7 @@ export default function Cart() {
             </div>
 
             <h2 className="text-xl mb-4">
-              Subtotal ({itemCount} item{itemCount !== 1 ? 's' : ''}): <span className="font-bold">${cartTotal.toFixed(2)}</span>
+              Subtotal ({itemCount} item{itemCount !== 1 ? 's' : ''}): <span className="font-bold whitespace-nowrap">${cartTotal.toFixed(2)}</span>
             </h2>
 
             <div className="flex items-center space-x-2 text-sm text-gray-700 mb-6 border-b pb-4">
@@ -142,7 +142,7 @@ export default function Cart() {
 
             <button 
               onClick={() => router.push("/checkout")}
-              className="w-full bg-[#FFD814] hover:bg-[#F7CA00] text-black border border-[#FCD200] py-2 rounded-lg shadow-sm"
+              className="w-full bg-[#FFD814] hover:bg-[#F7CA00] text-black text-sm font-medium border border-[#FCD200] py-2 rounded-full shadow-sm"
             >
               Proceed to checkout
             </button>

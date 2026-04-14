@@ -9,13 +9,13 @@ export default function ProductCard({ product }: { product: Product }) {
   const { addToCart } = useCart();
 
   return (
-    <div className="flex flex-col bg-white z-30 p-4 rounded hover:shadow-lg transition-shadow relative">
-      <div className="absolute top-2 right-2 text-xs italic text-gray-400">
+    <div className="flex flex-col bg-white z-30 p-5 rounded-none sm:rounded-sm border border-gray-200 hover:shadow-lg transition-shadow relative">
+      <div className="absolute top-2 right-2 text-[10px] uppercase font-bold text-gray-400 tracking-wider">
         {product.category}
       </div>
       
       <Link href={`/product/${product.id}`} className="flex flex-col flex-1 items-center">
-        <div className="w-[200px] h-[200px] relative mb-4">
+        <div className="w-full aspect-square relative mb-2 flex items-center justify-center p-2">
           <Image 
             src={product.imageUrl} 
             alt={product.title} 
@@ -25,8 +25,8 @@ export default function ProductCard({ product }: { product: Product }) {
           />
         </div>
         
-        <div className="w-full text-left flex-1 mt-2">
-          <h4 className="font-medium line-clamp-2">{product.title}</h4>
+        <div className="w-full text-left flex-1 mt-1">
+          <h4 className="text-sm font-medium line-clamp-2 hover:text-[#C7511F]">{product.title}</h4>
           
           <div className="flex text-[#F3A847] items-center my-1 text-sm">
             {Array(Math.floor(product.rating))
@@ -37,24 +37,24 @@ export default function ProductCard({ product }: { product: Product }) {
             <span className="text-blue-500 ml-2 hover:underline">{product.rating}</span>
           </div>
           
-          <div className="text-2xl mt-1">
-            <span className="text-sm align-top">$</span>
-            {Math.floor(product.price)}
-            <span className="text-sm align-top">
+          <div className="flex items-start mt-1">
+            <span className="text-xs mt-[2px] font-medium">$</span>
+            <span className="text-2xl font-medium">{Math.floor(product.price)}</span>
+            <span className="text-xs mt-[2px] font-medium">
               {((product.price % 1) * 100).toFixed(0).padStart(2, '0')}
             </span>
           </div>
 
-          <div className="flex items-center space-x-1 mt-1 text-sm">
-            <span className="text-blue-500 font-semibold italic">prime</span>
-            <span className="text-gray-500">FREE Delivery</span>
+          <div className="flex items-center mt-1">
+            <span className="text-[#00A8E1] font-bold italic text-sm tracking-tight mr-1"><span className="text-[#FF9900]">✓</span>prime</span>
+            <span className="text-gray-500 text-xs">FREE Delivery</span>
           </div>
         </div>
       </Link>
       
       <button 
         onClick={() => addToCart(product, 1)}
-        className="w-full mt-auto bg-[#FF9900] hover:bg-[#F3A847] text-black border border-[#a88734] mt-4 py-2 rounded shadow-sm hover:shadow"
+        className="w-full mt-auto bg-[#FFD814] hover:bg-[#F7CA00] text-black text-sm font-medium border border-[#FCD200] mt-3 py-2 rounded-full shadow-sm"
       >
         Add to Cart
       </button>

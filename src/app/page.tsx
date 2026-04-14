@@ -6,8 +6,13 @@ import ProductCard from "@/components/product/ProductCard";
 import Image from "next/image";
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/solid";
 
-// A dummy hero image
-const HERO_IMAGE = "https://picsum.photos/1500/600?random=1";
+import { motion, AnimatePresence } from "framer-motion";
+
+const CAROUSEL_IMAGES = [
+  "https://picsum.photos/id/1015/1500/600",
+  "https://picsum.photos/id/1035/1500/600",
+  "https://picsum.photos/id/1041/1500/600",
+];
 
 export default function Home({
   searchParams,
@@ -25,6 +30,14 @@ export default function Home({
   
   const [currentPage, setCurrentPage] = useState(parseInt(pageParam));
   const [totalPages, setTotalPages] = useState(1);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentImageIndex((prev) => (prev + 1) % CAROUSEL_IMAGES.length);
+    }, 5000);
+    return () => clearInterval(timer);
+  }, []);
 
   useEffect(() => {
     async function fetchProducts() {
@@ -58,22 +71,31 @@ export default function Home({
   }, [pageParam]);
 
   return (
-    <div className="max-w-[1500px] mx-auto bg-amazon-lightGray">
-      <div className="relative">
-        <div className="w-full h-[300px] sm:h-[400px] md:h-[500px] relative">
-          <Image 
-            src={HERO_IMAGE} 
-            alt="Hero Banner" 
-            fill 
-            className="object-cover"
-            priority
-          />
-          {/* Gradient overlay to blend bottom of hero image to general background */}
-          <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-amazon-lightGray to-transparent z-10" />
+    <div className="max-w-[1500px] mx-auto bg-[#EAEDED]">
+      <div className="relative w-full overflow-hidden" style={{ WebkitMaskImage: "linear-gradient(to bottom, rgba(0,0,0,1) 60%, rgba(0,0,0,0) 100%)", maskImage: "linear-gradient(to bottom, rgba(0,0,0,1) 60%, rgba(0,0,0,0) 100%)" }}>
+        <div className="w-full h-[300px] sm:h-[400px] md:h-[600px] relative">
+          <AnimatePresence>
+            <motion.div
+              key={currentImageIndex}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 1 }}
+              className="absolute inset-0"
+            >
+              <Image 
+                src={CAROUSEL_IMAGES[currentImageIndex]} 
+                alt="Banner Carousel" 
+                fill 
+                className="object-cover"
+                priority
+              />
+            </motion.div>
+          </AnimatePresence>
         </div>
       </div>
 
-      <div className="relative z-20 px-4 -mt-16 sm:-mt-32 md:-mt-48 max-w-7xl mx-auto">
+      <div className="relative z-20 px-4 -mt-[100px] sm:-mt-[150px] md:-mt-[350px] max-w-[1500px] mx-auto">
         {loading ? (
           <div className="flex justify-center items-center py-20">
             <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-amazon-orange"></div>
@@ -88,7 +110,7 @@ export default function Home({
            </div>
         ) : (
           <>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 xl:gap-5">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 lg:gap-4">
               {products.map((product) => (
                 <ProductCard key={product.id} product={product} />
               ))}
