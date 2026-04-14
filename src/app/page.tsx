@@ -9,9 +9,11 @@ import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/solid";
 import { motion, AnimatePresence } from "framer-motion";
 
 const CAROUSEL_IMAGES = [
-  "https://picsum.photos/id/1015/1500/600",
-  "https://picsum.photos/id/1035/1500/600",
-  "https://picsum.photos/id/1041/1500/600",
+  "/a1.jpg",
+  "/a2.png",
+  "/a3.jpg",
+  "/a4.jpg",
+  "/a5.jpg"
 ];
 
 export default function Home({
@@ -27,14 +29,22 @@ export default function Home({
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  
+
   const [currentPage, setCurrentPage] = useState(parseInt(pageParam));
   const [totalPages, setTotalPages] = useState(1);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
+  const nextSlide = () => {
+    setCurrentImageIndex((prev) => (prev + 1) % CAROUSEL_IMAGES.length);
+  };
+
+  const prevSlide = () => {
+    setCurrentImageIndex((prev) => (prev === 0 ? CAROUSEL_IMAGES.length - 1 : prev - 1));
+  };
+
   useEffect(() => {
     const timer = setInterval(() => {
-      setCurrentImageIndex((prev) => (prev + 1) % CAROUSEL_IMAGES.length);
+      nextSlide();
     }, 5000);
     return () => clearInterval(timer);
   }, []);
@@ -46,11 +56,11 @@ export default function Home({
         const query = new URLSearchParams();
         query.set("page", currentPage.toString());
         if (searchParam) query.set("search", searchParam);
-        if (categoryParam) query.set("category", categoryParam);
+        if (categoryParam && categoryParam !== "All Categories") query.set("category", categoryParam);
 
         const res = await fetch(`/api/products?${query.toString()}`);
         if (!res.ok) throw new Error("Failed to fetch products");
-        
+
         const data = await res.json();
         setProducts(data.products || []);
         setTotalPages(data.totalPages || 1);
@@ -72,7 +82,7 @@ export default function Home({
 
   return (
     <div className="max-w-[1500px] mx-auto bg-[#EAEDED]">
-      <div className="relative w-full overflow-hidden" style={{ WebkitMaskImage: "linear-gradient(to bottom, rgba(0,0,0,1) 60%, rgba(0,0,0,0) 100%)", maskImage: "linear-gradient(to bottom, rgba(0,0,0,1) 60%, rgba(0,0,0,0) 100%)" }}>
+      <div className="relative w-full overflow-hidden group" style={{ WebkitMaskImage: "linear-gradient(to bottom, black 50%, transparent 100%)", maskImage: "linear-gradient(to bottom, black 50%, transparent 100%)" }}>
         <div className="w-full h-[300px] sm:h-[400px] md:h-[600px] relative">
           <AnimatePresence>
             <motion.div
@@ -83,19 +93,37 @@ export default function Home({
               transition={{ duration: 1 }}
               className="absolute inset-0"
             >
-              <Image 
-                src={CAROUSEL_IMAGES[currentImageIndex]} 
-                alt="Banner Carousel" 
-                fill 
+              <Image
+                src={CAROUSEL_IMAGES[currentImageIndex]}
+                alt="Banner Carousel"
+                fill
                 className="object-cover"
                 priority
               />
             </motion.div>
           </AnimatePresence>
+          <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-[#EAEDED] to-transparent z-10 pointer-events-none" />
+
+          {/* Navigation Arrows */}
+          <button
+            type="button"
+            onClick={prevSlide}
+            className="absolute left-4 top-[40%] -translate-y-1/2 bg-white/30 hover:bg-white/50 p-2 md:p-5 opacity-0 group-hover:opacity-100 transition-opacity z-20 focus:outline-none border border-transparent rounded shadow-sm hover:border-black cursor-pointer"
+          >
+            <ChevronLeftIcon className="h-8 w-8 text-black" />
+          </button>
+
+          <button
+            type="button"
+            onClick={nextSlide}
+            className="absolute right-4 top-[40%] -translate-y-1/2 bg-white/30 hover:bg-white/50 p-2 md:p-5 opacity-0 group-hover:opacity-100 transition-opacity z-20 focus:outline-none border border-transparent rounded shadow-sm hover:border-black cursor-pointer"
+          >
+            <ChevronRightIcon className="h-8 w-8 text-black" />
+          </button>
         </div>
       </div>
 
-      <div className="relative z-20 px-4 -mt-[100px] sm:-mt-[150px] md:-mt-[350px] max-w-[1500px] mx-auto">
+      <div className="relative z-10 px-4 mt-[-155px] md:mt-[-285px] max-w-[1500px] mx-auto">
         {loading ? (
           <div className="flex justify-center items-center py-20">
             <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-amazon-orange"></div>
@@ -105,9 +133,9 @@ export default function Home({
             {error}
           </div>
         ) : products.length === 0 ? (
-           <div className="bg-white p-8 text-center text-xl font-medium rounded mt-20">
-             {searchParam || categoryParam ? "No products found for your search/filter." : "No products available."}
-           </div>
+          <div className="bg-white p-8 text-center text-xl font-medium rounded mt-20">
+            {searchParam || categoryParam ? "No products found for your search/filter." : "No products available."}
+          </div>
         ) : (
           <>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 lg:gap-4">
@@ -119,7 +147,7 @@ export default function Home({
             {/* Pagination Controls */}
             {totalPages > 1 && (
               <div className="flex justify-center mt-8 mb-12 space-x-2">
-                <button 
+                <button
                   onClick={() => {
                     const newPage = Math.max(1, currentPage - 1);
                     setCurrentPage(newPage);
@@ -134,7 +162,7 @@ export default function Home({
                 <div className="flex items-center px-4 py-2">
                   Page {currentPage} of {totalPages}
                 </div>
-                <button 
+                <button
                   onClick={() => {
                     const newPage = Math.min(totalPages, currentPage + 1);
                     setCurrentPage(newPage);

@@ -2,132 +2,142 @@ import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
+const PRODUCTS = [
+  // Electronics
+  {
+    title: "Apple iPhone 15 Pro, 256GB - Titanium",
+    description: "Experience the fastest chip ever in a smartphone and an incredible camera system.",
+    price: 1099.00,
+    imageUrl: "https://images.unsplash.com/photo-1696446701796-da61225697cc?w=500",
+    category: "Electronics",
+    rating: 4.8,
+    stock: 150
+  },
+  {
+    title: "MacBook Pro 16-inch M3 Max",
+    description: "Mind-blowing performance for pro workflows with all-day battery life.",
+    price: 3499.00,
+    imageUrl: "https://images.unsplash.com/photo-1517336714460-457224b6e351?w=500",
+    category: "Electronics",
+    rating: 4.9,
+    stock: 45
+  },
+  {
+    title: "Sony WH-1000XM5 Wireless Noise Canceling Headphones",
+    description: "Industry-leading noise cancellation with auto noise canceling optimizer.",
+    price: 348.00,
+    imageUrl: "https://images.unsplash.com/photo-1675243935987-3c1820d7454a?w=500",
+    category: "Electronics",
+    rating: 4.7,
+    stock: 200
+  },
+  // Home & Kitchen
+  {
+    title: "Dyson V15 Detect Cordless Vacuum",
+    description: "Intelligently optimizes suction and run time based on floor type.",
+    price: 699.00,
+    imageUrl: "https://images.unsplash.com/photo-1558317374-067df5f15430?w=500",
+    category: "Home & Kitchen",
+    rating: 4.6,
+    stock: 65
+  },
+  {
+    title: "Nespresso Vertuo Coffee and Espresso Machine",
+    description: "Brews 4 different cup sizes at the touch of a button.",
+    price: 199.00,
+    imageUrl: "https://images.unsplash.com/photo-1520970014086-2208d157c9e2?w=500",
+    category: "Home & Kitchen",
+    rating: 4.8,
+    stock: 150
+  },
+  {
+    title: "Ninja Air Fryer Pro 4-in-1",
+    description: "Air fry, roast, reheat, and dehydrate. Enjoy guilt-free fried food.",
+    price: 119.99,
+    imageUrl: "https://images.unsplash.com/photo-1626074353765-517a681e40be?w=500",
+    category: "Home & Kitchen",
+    rating: 4.8,
+    stock: 300
+  },
+  // Books
+  {
+    title: "The Psychology of Money",
+    description: "Timeless lessons on wealth, greed, and happiness by Morgan Housel.",
+    price: 18.24,
+    imageUrl: "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=500",
+    category: "Books",
+    rating: 4.8,
+    stock: 500
+  },
+  {
+    title: "Dune (Penguin Galaxy)",
+    description: "Frank Herbert’s classic masterpiece, a triumph of the imagination.",
+    price: 16.99,
+    imageUrl: "https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=500",
+    category: "Books",
+    rating: 4.8,
+    stock: 220
+  },
+  {
+    title: "Thinking, Fast and Slow",
+    description: "A major New York Times bestseller by Nobel Prize winner Daniel Kahneman.",
+    price: 22.50,
+    imageUrl: "https://images.unsplash.com/photo-1553729459-efe14ef6055d?w=500",
+    category: "Books",
+    rating: 4.5,
+    stock: 350
+  },
+  // Beauty
+  {
+    title: "La Mer Crème de la Mer Moisturizer",
+    description: "A luxuriously rich cream that thoroughly soothes, moisturizes, and hydrates to help heal away dryness.",
+    price: 195.00,
+    imageUrl: "https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=500",
+    category: "Beauty",
+    rating: 4.8,
+    stock: 60
+  },
+  {
+    title: "Dior Sauvage Eau de Toilette",
+    description: "A radically fresh composition, formulated with high quality ingredients.",
+    price: 120.00,
+    imageUrl: "https://images.unsplash.com/photo-1594035919831-58188c5820ab?w=500",
+    category: "Beauty",
+    rating: 4.9,
+    stock: 120
+  },
+  // Appliances
+  {
+    title: "Whirlpool Stainless Steel Refrigerator",
+    description: "A counter-depth french door refrigerator with immense storage capacity.",
+    price: 1299.99,
+    imageUrl: "https://images.unsplash.com/photo-1584824486509-f64f89fb0c69?w=500",
+    category: "Appliances",
+    rating: 4.5,
+    stock: 15
+  },
+  {
+    title: "Samsung Front Load Washer and Dryer Set",
+    description: "Smart Dial Front Load Washers and Dryers with OptiWash.",
+    price: 1598.00,
+    imageUrl: "https://images.unsplash.com/photo-1610557892470-5b1285db2d6e?w=500",
+    category: "Appliances",
+    rating: 4.7,
+    stock: 8
+  }
+];
+
 async function main() {
-  console.log("Seeding database...");
-
-  const products = [
-    // Electronics
-    {
-      title: "Wireless Noise-Cancelling Headphones",
-      description: "Premium over-ear headphones with active noise cancellation and 30-hour battery life.",
-      price: 299.99,
-      imageUrl: "https://picsum.photos/seed/elec1/400/400",
-      category: "Electronics",
-      rating: 4.8,
-      stock: 50,
-    },
-    {
-      title: "4K Ultra HD Smart TV",
-      description: "55-inch smart television with vibrant colors and built-in streaming apps.",
-      price: 499.00,
-      imageUrl: "https://picsum.photos/seed/elec2/400/400",
-      category: "Electronics",
-      rating: 4.5,
-      stock: 30,
-    },
-    {
-      title: "Mechanical Gaming Keyboard",
-      description: "RGB backlit mechanical keyboard with tactile switches for precision gaming.",
-      price: 89.99,
-      imageUrl: "https://picsum.photos/seed/elec3/400/400",
-      category: "Electronics",
-      rating: 4.7,
-      stock: 120,
-    },
-    {
-      title: "Smartphone Fast Charger",
-      description: "65W USB-C power adapter for quick charging smartphones and tablets.",
-      price: 24.50,
-      imageUrl: "https://picsum.photos/seed/elec4/400/400",
-      category: "Electronics",
-      rating: 4.3,
-      stock: 200,
-    },
-    
-    // Books
-    {
-      title: "The Silent Patient",
-      description: "A shocking psychological thriller of a woman's act of violence against her husband.",
-      price: 14.99,
-      imageUrl: "https://picsum.photos/seed/book1/400/400",
-      category: "Books",
-      rating: 4.6,
-      stock: 80,
-    },
-    {
-      title: "Atomic Habits",
-      description: "An easy & proven way to build good habits & break bad ones.",
-      price: 11.98,
-      imageUrl: "https://picsum.photos/seed/book2/400/400",
-      category: "Books",
-      rating: 4.9,
-      stock: 150,
-    },
-    {
-      title: "Dune",
-      description: "Frank Herbert's classic masterpiece - a triumph of the imagination.",
-      price: 18.00,
-      imageUrl: "https://picsum.photos/seed/book3/400/400",
-      category: "Books",
-      rating: 4.7,
-      stock: 90,
-    },
-    {
-      title: "Clean Code",
-      description: "A Handbook of Agile Software Craftsmanship.",
-      price: 34.50,
-      imageUrl: "https://picsum.photos/seed/book4/400/400",
-      category: "Books",
-      rating: 4.8,
-      stock: 45,
-    },
-
-    // Home & Kitchen
-    {
-      title: "Non-Stick Cookware Set",
-      description: "10-piece pots and pans set with non-stick coating for easy cleaning.",
-      price: 129.99,
-      imageUrl: "https://picsum.photos/seed/home1/400/400",
-      category: "Home & Kitchen",
-      rating: 4.4,
-      stock: 60,
-    },
-    {
-      title: "Programmable Coffee Maker",
-      description: "12-cup drip coffee maker with programmable timer and keep-warm setting.",
-      price: 49.99,
-      imageUrl: "https://picsum.photos/seed/home2/400/400",
-      category: "Home & Kitchen",
-      rating: 4.5,
-      stock: 85,
-    },
-    {
-      title: "Robot Vacuum Cleaner",
-      description: "Smart robotic vacuum with strong suction and self-charging capability.",
-      price: 199.00,
-      imageUrl: "https://picsum.photos/seed/home3/400/400",
-      category: "Home & Kitchen",
-      rating: 4.6,
-      stock: 40,
-    },
-    {
-      title: "Scented Candles Gift Set",
-      description: "Set of 4 natural soy wax candles with lavender, vanilla, rose, and lemon scents.",
-      price: 22.95,
-      imageUrl: "https://picsum.photos/seed/home4/400/400",
-      category: "Home & Kitchen",
-      rating: 4.8,
-      stock: 110,
-    }
-  ];
-
-  for (const p of products) {
+  console.log('Clearing database...');
+  await prisma.orderItem.deleteMany({});
+  await prisma.order.deleteMany({});
+  await prisma.product.deleteMany({});
+  for (const product of PRODUCTS) {
     await prisma.product.create({
-      data: p
+      data: product
     });
   }
-
-  console.log("Seeding completed.");
+  console.log('Seeding completed.');
 }
 
 main()
