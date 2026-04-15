@@ -33,11 +33,11 @@ export default function ProductDetail({
 
   const isWishlisted = product ? isInWishlist(product.id) : false;
 
-  const [selectedSize, setSelectedSize] = useState<string>("8 UK");
-  const [selectedColor, setSelectedColor] = useState<string>("BLACK");
+  const colors = ["Black", "White", "Grey", "Red", "Blue"];
+  const sizes = ["S", "M", "L", "XL", "XXL"];
 
-  const colors = ["BLACK", "WHITE", "GREY", "RED"];
-  const sizes = ["6 ", "7 ", "8 ", "9 ", "10 ", "11 "];
+  const [selectedColor, setSelectedColor] = useState<string>(colors[0]);
+  const [selectedSize, setSelectedSize] = useState<string>(sizes[0]);
 
   // Scroll to top on mount
   useEffect(() => {
