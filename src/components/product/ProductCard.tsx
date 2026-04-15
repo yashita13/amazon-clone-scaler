@@ -4,20 +4,39 @@ import Image from "next/image";
 import Link from "next/link";
 import { Product } from "@prisma/client";
 import { useCart } from "@/context/CartContext";
+import { useWishlist } from "@/context/WishlistContext";
 import { formatINR } from "@/lib/formatPrice";
 import { useState } from "react";
+import { Heart } from "lucide-react";
 
 const FALLBACK_IMAGE = "https://picsum.photos/800/800";
 
 export default function ProductCard({ product, priority = false }: { product: Product, priority?: boolean }) {
   const { addToCart } = useCart();
+  const { toggleWishlist, isInWishlist } = useWishlist();
   const [imgSrc, setImgSrc] = useState(product.imageUrl);
 
+  const isWishlisted = isInWishlist(product.id);
+
   return (
-    <div className="flex flex-col bg-white z-30 p-5 rounded-none sm:rounded-sm border border-gray-200 hover:shadow-lg transition-shadow relative">
-      <div className="absolute top-2 right-2 text-[10px] uppercase font-bold text-gray-400 tracking-wider">
+    <div className="flex flex-col bg-white z-30 p-5 rounded-none sm:rounded-sm border border-gray-200 hover:shadow-lg transition-shadow relative group">
+      <div className="absolute top-2 left-2 text-[10px] uppercase font-bold text-gray-400 tracking-wider">
         {product.category}
       </div>
+
+      <button
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          toggleWishlist(product);
+        }}
+        className="absolute top-2 right-2 p-1 rounded-full bg-white/80 hover:bg-gray-100 z-40 transition-colors"
+        title={isWishlisted ? "Remove from Wishlist" : "Add to Wishlist"}
+      >
+        <Heart 
+          className={`w-5 h-5 transition-colors ${isWishlisted ? "fill-red-500 text-red-500" : "text-gray-400"}`} 
+        />
+      </button>
       
       <Link href={`/product/${product.id}`} className="flex flex-col flex-1 items-center">
         <div className="w-full aspect-square relative mb-2 flex items-center justify-center p-2">

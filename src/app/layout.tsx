@@ -4,6 +4,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { CartProvider } from "@/context/CartContext";
 import { AuthProvider } from "@/context/AuthContext";
+import { WishlistProvider } from "@/context/WishlistContext";
 import Navbar from "@/components/layout/Navbar";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -22,14 +23,16 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${inter.className} bg-amazon-lightGray text-amazon-textPrimary`}>
         <AuthProvider>
-          <CartProvider>
-            <React.Suspense fallback={<div>Loading mapping...</div>}>
-              <Navbar />
-            </React.Suspense>
-          <main className="min-h-screen">
-              {children}
-            </main>
-          </CartProvider>
+          <WishlistProvider>
+            <CartProvider>
+              <React.Suspense fallback={<div>Loading mapping...</div>}>
+                <Navbar />
+              </React.Suspense>
+            <main className="min-h-screen">
+                {children}
+              </main>
+            </CartProvider>
+          </WishlistProvider>
         </AuthProvider>
       </body>
     </html>

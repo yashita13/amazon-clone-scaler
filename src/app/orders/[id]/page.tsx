@@ -38,8 +38,13 @@ export default function OrderDetailPage() {
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showReturnForm, setShowReturnForm] = useState(false);
+  const [returnType, setReturnType] = useState<"RETURN" | "EXCHANGE">("RETURN");
+  const [returnReason, setReturnReason] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  useEffect(() => {
+  const fetchOrder = () => {
+    setLoading(true);
     fetch(`/api/orders/${id}`)
       .then(r => r.json())
       .then(data => {
@@ -48,7 +53,37 @@ export default function OrderDetailPage() {
       })
       .catch(() => setError("Failed to load order"))
       .finally(() => setLoading(false));
+  };
+
+  useEffect(() => {
+    fetchOrder();
   }, [id]);
+
+  const handleReturnSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!returnReason) return alert("Please provide a reason");
+
+    setIsSubmitting(true);
+    try {
+      const res = await fetch(`/api/orders/${id}/return`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ reason: returnReason, type: returnType }),
+      });
+
+      if (res.ok) {
+        alert(`${returnType === "RETURN" ? "Return" : "Replacement"} request submitted successfully!`);
+        setShowReturnForm(false);
+        fetchOrder(); // Refresh data
+      } else {
+        alert("Failed to submit request");
+      }
+    } catch (err) {
+      alert("Something went wrong");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -166,6 +201,69 @@ export default function OrderDetailPage() {
           <span>{formatINR(order.total)}</span>
         </div>
       </div>
+
+      {/* Return / Exchange Section */}
+      <div className="mt-6">
+        {!showReturnForm ? (
+          <div className="flex flex-col sm:flex-row gap-3">
+            <button
+              onClick={() => { setReturnType("RETURN"); setShowReturnForm(true); }}
+              className="px-6 py-2 bg-white border border-gray-300 rounded-md shadow-sm text-sm font-medium hover:bg-gray-50 transition-colors"
+            >
+              Return Items
+            </button>
+            <button
+              onClick={() => { setReturnType("EXCHANGE"); setShowReturnForm(true); }}
+              className="px-6 py-2 bg-white border border-gray-300 rounded-md shadow-sm text-sm font-medium hover:bg-gray-50 transition-colors"
+            >
+              Replace Items
+            </button>
+          </div>
+        ) : (
+          <div className="bg-white border border-yellow-400 p-6 rounded-lg shadow-md animate-in fade-in slide-in-from-top-4 duration-300">
+            <h3 className="text-lg font-bold mb-4">
+              Request {returnType === "RETURN" ? "Return" : "Replacement"}
+            </h3>
+            <form onSubmit={handleReturnSubmit}>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Why are you {returnType === "RETURN" ? "returning" : "replacing"} this?
+              </label>
+              <textarea
+                required
+                className="w-full border border-gray-300 rounded-md p-3 text-sm focus:ring-[#007185] focus:border-[#007185] mb-4"
+                rows={3}
+                placeholder="e.g. Bought by mistake, defective, wrong size..."
+                value={returnReason}
+                onChange={(e) => setReturnReason(e.target.value)}
+              />
+              <div className="flex gap-3">
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="bg-[#FF9900] hover:bg-[#F3A847] text-black font-medium py-2 px-6 rounded shadow-sm disabled:opacity-50"
+                >
+                  {isSubmitting ? "Submitting..." : `Submit ${returnType === "RETURN" ? "Return" : "Replacement"}`}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowReturnForm(false)}
+                  className="text-gray-600 hover:text-black py-2 px-4 text-sm font-medium"
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+        )}
+      </div>
+      
+      {/* Return Banner if status matches */}
+      {(order.status === "RETURN_REQUESTED" || order.status === "RETURNED" || order.status === "EXCHANGED") && (
+        <div className="mt-6 bg-blue-50 border border-blue-200 p-4 rounded-md">
+          <p className="text-blue-800 font-bold">Status: {order.status.replace("_", " ")}</p>
+          {returnReason && <p className="text-blue-600 text-sm mt-1">Reason: {returnReason}</p>}
+        </div>
+      )}
     </div>
   );
 }

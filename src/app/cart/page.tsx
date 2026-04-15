@@ -1,6 +1,7 @@
 "use client";
 
 import { useCart } from "@/context/CartContext";
+import { useWishlist } from "@/context/WishlistContext";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -8,7 +9,13 @@ import { formatINR } from "@/lib/formatPrice";
 
 export default function Cart() {
   const { cartItems, updateQty, removeFromCart, cartTotal, itemCount } = useCart();
+  const { addToWishlist } = useWishlist();
   const router = useRouter();
+
+  const moveToWishlist = (product: any) => {
+    addToWishlist(product);
+    removeFromCart(product.id);
+  };
 
   if (cartItems.length === 0) {
     return (
@@ -84,7 +91,10 @@ export default function Cart() {
                         Delete
                       </button>
                       <span className="text-gray-300">|</span>
-                      <button className="text-[#007185] hover:text-[#C7511F] hover:underline text-sm hidden sm:inline">
+                      <button 
+                        onClick={() => moveToWishlist(item.product)}
+                        className="text-[#007185] hover:text-[#C7511F] hover:underline text-sm hidden sm:inline"
+                      >
                         Save for later
                       </button>
                     </div>

@@ -6,11 +6,13 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useState, useEffect } from "react";
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
+import { useWishlist } from "@/context/WishlistContext";
 
 export default function Navbar() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { itemCount } = useCart();
+  const { wishlistItems } = useWishlist();
   const { user, signOutUser } = useAuth();
 
   const [search, setSearch] = useState(searchParams.get("search") || "");
@@ -114,6 +116,11 @@ export default function Navbar() {
           <Link href="/orders" className="hidden md:block cursor-pointer border border-transparent hover:border-white p-1 rounded-sm">
             <p>Returns</p>
             <p className="font-bold">& Orders</p>
+          </Link>
+
+          <Link href="/wishlist" className="hidden lg:block cursor-pointer border border-transparent hover:border-white p-1 rounded-sm">
+            <p>Your</p>
+            <p className="font-bold">Wishlist</p>
           </Link>
 
           <Link href="/cart" className="flex items-center cursor-pointer border border-transparent hover:border-white p-1 rounded-sm relative">

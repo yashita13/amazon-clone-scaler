@@ -5,8 +5,10 @@ import { Product } from "@prisma/client";
 import Image from "next/image";
 import Link from "next/link";
 import { useCart } from "@/context/CartContext";
+import { useWishlist } from "@/context/WishlistContext";
 import { useRouter } from "next/navigation";
 import { formatINR } from "@/lib/formatPrice";
+import { Heart } from "lucide-react";
 
 const FALLBACK_IMAGE = "https://picsum.photos/800/800";
 
@@ -27,6 +29,9 @@ export default function ProductDetail({
   const [selectedThumb, setSelectedThumb] = useState(0);
 
   const { addToCart } = useCart();
+  const { toggleWishlist, isInWishlist } = useWishlist();
+
+  const isWishlisted = product ? isInWishlist(product.id) : false;
 
   // Scroll to top on mount
   useEffect(() => {
@@ -269,9 +274,17 @@ export default function ProductDetail({
 
                     <button
                       onClick={handleBuyNow}
-                      className="w-full bg-[#FFA41C] hover:bg-[#FA8900] text-black border border-[#FF8F00] py-2 rounded-full shadow-sm mb-2"
+                      className="w-full bg-[#FFA41C] hover:bg-[#FA8900] text-black border border-[#FF8F00] py-2 rounded-full shadow-sm mb-4"
                     >
                       Buy Now
+                    </button>
+
+                    <button
+                      onClick={() => product && toggleWishlist(product)}
+                      className={`w-full flex items-center justify-center gap-2 py-2 rounded-full border border-gray-300 shadow-sm text-sm font-medium transition-colors ${isWishlisted ? 'bg-red-50 border-red-200 text-red-700 hover:bg-red-100' : 'bg-white hover:bg-gray-100 text-gray-700'}`}
+                    >
+                      <Heart className={`w-4 h-4 ${isWishlisted ? 'fill-red-500 text-red-500' : ''}`} />
+                      {isWishlisted ? "In Wishlist" : "Add to Wishlist"}
                     </button>
 
                     <div className="flex items-center text-gray-500 text-sm mt-3 space-x-2 justify-center">

@@ -20,6 +20,7 @@ model Product {
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
   orderItems  OrderItem[]
+  wishlist    Wishlist[]
 }
 
 model Order {
@@ -29,9 +30,11 @@ model Order {
   userEmail String?
   userName  String?
   address   String?
-  createdAt DateTime    @default(now())
-  updatedAt DateTime    @updatedAt
-  items     OrderItem[]
+  returnReason String?
+  returnType   String? // "RETURN" or "EXCHANGE"
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+  items        OrderItem[]
 }
 
 model OrderItem {
@@ -61,9 +64,18 @@ model OTPVerification {
   password  String?
   phone     String?
   expiresAt DateTime
-  createdAt DateTime @default(now())
-
   @@index([email])
+  createdAt DateTime @default(now())
+}
+
+model Wishlist {
+  id        String   @id @default(cuid())
+  userId    String
+  productId String
+  createdAt DateTime @default(now())
+  product   Product  @relation(fields: [productId], references: [id])
+
+  @@unique([userId, productId])
 }
 
 enum OrderStatus {
@@ -72,4 +84,7 @@ enum OrderStatus {
   SHIPPED
   DELIVERED
   CANCELLED
+  RETURN_REQUESTED
+  RETURNED
+  EXCHANGED
 }

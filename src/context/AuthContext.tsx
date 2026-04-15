@@ -18,7 +18,11 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<User | null>({
+    id: "demo-user-123",
+    email: "eva@example.com",
+    name: "Eva Edisson"
+  });
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -26,6 +30,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const storedUser = localStorage.getItem("amazon-clone-auth");
       if (storedUser) {
         setUser(JSON.parse(storedUser));
+      } else {
+        // Automatically sign in the demo user if nothing is stored
+        const demoUser = {
+          id: "demo-user-123",
+          email: "eva@example.com",
+          name: "Eva Edisson"
+        };
+        setUser(demoUser);
+        localStorage.setItem("amazon-clone-auth", JSON.stringify(demoUser));
       }
     } catch (error) {
       console.error("Failed to parse auth from localStorage", error);
