@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, use } from "react";
+import { useEffect, useState, use, useRef } from "react";
 import { Product } from "@prisma/client";
 import ProductCard from "@/components/product/ProductCard";
 import ProductCardSkeleton from "@/components/product/ProductCardSkeleton";
@@ -8,6 +8,9 @@ import Image from "next/image";
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/solid";
 
 import { motion, AnimatePresence } from "framer-motion";
+import CategoryGridCard from "@/components/home/CategoryGridCard";
+import { useAuth } from "@/context/AuthContext";
+import Link from "next/link";
 
 const CAROUSEL_IMAGES = [
   "/a1.jpg",
@@ -23,6 +26,7 @@ export default function Home({
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 }) {
   const unwrappedParams = use(searchParams);
+  const { user } = useAuth();
   const pageParam = typeof unwrappedParams.page === "string" ? unwrappedParams.page : "1";
   const searchParam = typeof unwrappedParams.search === "string" ? unwrappedParams.search : "";
   const categoryParam = typeof unwrappedParams.category === "string" ? unwrappedParams.category : "";
@@ -42,6 +46,13 @@ export default function Home({
   const [sortBy, setSortBy] = useState(sortParam);
   const [bestSellerOnly, setBestSellerOnly] = useState(bestSellerParam);
   const [dealsOnly, setDealsOnly] = useState(dealParam);
+
+  const [gridData, setGridData] = useState<any[]>([]);
+  const [bestSellers, setBestSellers] = useState<Product[]>([]);
+  const [recommendations, setRecommendations] = useState<Product[]>([]);
+  const [recTitle, setRecTitle] = useState("Recommended for You");
+
+  const resultsRef = useRef<HTMLDivElement>(null);
 
   const nextSlide = () => {
     setCurrentImageIndex((prev) => (prev + 1) % CAROUSEL_IMAGES.length);
@@ -99,6 +110,13 @@ export default function Home({
     fetchProducts();
   }, [currentPage, searchParam, categoryParam, sortBy, bestSellerOnly, dealsOnly]);
 
+  // Smooth scroll to results when category changes
+  useEffect(() => {
+    if ((categoryParam || searchParam) && resultsRef.current) {
+      resultsRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }, [categoryParam, searchParam]);
+
   // Sync state if URL changes directly
   useEffect(() => {
     setCurrentPage(parseInt(pageParam));
@@ -129,6 +147,58 @@ export default function Home({
     window.history.pushState(null, '', newUrl);
     setCurrentPage(1);
   };
+
+  // Fetch data for category grids & personalized cards
+  useEffect(() => {
+    const categoriesToFetch = ["Electronics", "Men's Clothing", "Women's Clothing"];
+
+    async function fetchGrids() {
+      try {
+        const results = await Promise.all(
+          categoriesToFetch.map(async (cat) => {
+            const res = await fetch(`/api/products?category=${encodeURIComponent(cat)}&limit=4`);
+            const data = await res.json();
+            return {
+              title: cat.includes("Clothing") ? cat.replace("'s Clothing", "'s Fashion") : cat,
+              category: cat,
+              items: (data.products || []).slice(0, 4)
+            };
+          })
+        );
+        setGridData(results);
+      } catch (err) {
+        console.error("Failed to fetch grid data", err);
+      }
+    }
+
+    async function fetchCardExtraData() {
+      try {
+        // Fetch Best Sellers for the guest card
+        const bsRes = await fetch("/api/products?isBestSeller=true&limit=4");
+        const bsData = await bsRes.json();
+        setBestSellers(bsData.products || []);
+
+        // Fetch Recommendations for the logged-in card
+        const latestSearch = localStorage.getItem("amazon-yashita-latest-search");
+        if (latestSearch) {
+          setRecTitle(`Inspired by: ${latestSearch}`);
+          const recRes = await fetch(`/api/products?search=${encodeURIComponent(latestSearch)}&limit=4`);
+          const recData = await recRes.json();
+          setRecommendations(recData.products || []);
+        } else {
+          // Fallback to top rated
+          const recRes = await fetch("/api/products?sort=rating_desc&limit=4");
+          const recData = await recRes.json();
+          setRecommendations(recData.products || []);
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    fetchGrids();
+    fetchCardExtraData();
+  }, [user]);
 
   return (
     <div className="max-w-[1500px] mx-auto bg-[#EAEDED]">
@@ -173,18 +243,91 @@ export default function Home({
         </div>
       </div>
 
+      {/* Category Grid Cards - Overlapping the carousel */}
+      <div className="relative z-30 px-4 mt-[-100px] sm:mt-[-180px] md:mt-[-320px] max-w-[1500px] mx-auto">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+          {gridData.map((grid, idx) => (
+            <CategoryGridCard
+              key={idx}
+              title={grid.title}
+              category={grid.category}
+              items={grid.items}
+            />
+          ))}
+
+          {/* User Specific 4th Card */}
+          {(!user || user.id === "demo-user-123") ? (
+            /* Guest / Demo User Card */
+            <div className="bg-white p-5 flex flex-col shadow-sm border border-gray-100 h-full">
+              <h2 className="text-xl font-bold mb-4 leading-tight">Sign in for your best experience</h2>
+              <Link
+                href="/signin"
+                className="bg-[#FFD814] hover:bg-[#F7CA00] text-black py-2 rounded-lg text-center font-medium shadow-sm transition-colors text-sm mb-6"
+              >
+                Sign in securely
+              </Link>
+
+              <div className="flex-grow flex flex-col">
+                <p className="text-sm font-bold mb-2">Trendings in Best Sellers</p>
+                <div className="grid grid-cols-2 gap-2 flex-grow">
+                  {bestSellers.slice(0, 4).map(item => (
+                    <Link key={item.id} href={`/product/${item.id}`} className="relative aspect-square bg-gray-50 rounded overflow-hidden group">
+                      <Image src={item.imageUrl} alt={item.title} fill className="object-contain p-2 group-hover:scale-105 transition-transform" />
+                    </Link>
+                  ))}
+                  {bestSellers.length === 0 && Array(4).fill(0).map((_, i) => (
+                    <div key={i} className="aspect-square bg-gray-100 animate-pulse rounded" />
+                  ))}
+                </div>
+              </div>
+            </div>
+          ) : (
+            /* Authenticated Regular User Card */
+            <div className="bg-white p-5 flex flex-col shadow-sm border border-gray-100 h-full">
+              <h2 className="text-xl font-bold mb-4 leading-tight">{recTitle}</h2>
+              <div className="grid grid-cols-2 gap-2 flex-grow">
+                {recommendations.slice(0, 4).map(item => (
+                  <Link key={item.id} href={`/product/${item.id}`} className="flex flex-col gap-1 group">
+                    <div className="relative aspect-square bg-gray-50 rounded overflow-hidden">
+                      <Image src={item.imageUrl} alt={item.title} fill className="object-contain p-2 group-hover:scale-105 transition-transform" />
+                    </div>
+                    <span className="text-[10px] text-gray-500 line-clamp-1">{item.title}</span>
+                  </Link>
+                ))}
+                {recommendations.length === 0 && Array(4).fill(0).map((_, i) => (
+                  <div key={i} className="aspect-square bg-gray-100 animate-pulse rounded" />
+                ))}
+              </div>
+              <Link href="/" className="text-xs text-[#007185] hover:underline mt-4">See more recommendations</Link>
+            </div>
+          )}
+
+          {/* Skeleton Loaders for grids */}
+          {gridData.length === 0 && Array(3).fill(0).map((_, i) => (
+            <div key={i} className="bg-white p-5 shadow-sm border border-gray-100 h-[420px] animate-pulse rounded">
+              <div className="h-8 bg-gray-200 w-3/4 mb-4 rounded" />
+              <div className="grid grid-cols-2 gap-4">
+                {Array(4).fill(0).map((_, j) => (
+                  <div key={j} className="aspect-square bg-gray-100 rounded" />
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
       {/* Results Header Bar */}
-      <div className="relative z-20 bg-white border-b border-gray-200 py-3 px-4 flex flex-col sm:flex-row justify-between items-center gap-4 shadow-sm">
+      <div ref={resultsRef} className="relative z-20 bg-white border-b border-gray-200 py-3 px-4 flex flex-col sm:flex-row justify-between items-center gap-4 shadow-sm scroll-mt-24">
         <div className="text-[14px] text-gray-700">
-          <span className="font-medium">1-{products.length}</span> of over <span className="font-medium">{totalProducts}</span> results 
+          <span className="font-medium">1-{products.length}</span> of over <span className="font-medium">{totalProducts}</span> results
           {searchParam && <span> for <span className="text-[#C45500] font-bold">"{searchParam}"</span></span>}
           {categoryParam && categoryParam !== "All Categories" && <span> in <span className="font-bold underline">{categoryParam}</span></span>}
         </div>
-        
+
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2">
             <span className="text-xs font-medium text-gray-500 uppercase">Sort by:</span>
-            <select 
+            <select
               value={sortBy}
               onChange={(e) => handleSortChange(e.target.value)}
               className="bg-gray-100 border border-gray-300 rounded-md text-sm py-1 px-2 outline-none focus:ring-1 focus:ring-[#e77600] cursor-pointer"
@@ -199,16 +342,16 @@ export default function Home({
       </div>
 
       <div className="flex flex-col md:flex-row gap-6 px-4 pb-12 mt-4">
-        
+
         {/* Sidebar Filters */}
         <aside className="hidden md:block w-[240px] flex-shrink-0 space-y-6">
           <div className="bg-white p-4 rounded shadow-sm border border-gray-200">
             <h3 className="font-bold text-sm mb-3 uppercase tracking-wider text-gray-500">Refine by</h3>
-            
+
             <div className="space-y-3">
               <label className="flex items-center gap-2 cursor-pointer group">
-                <input 
-                  type="checkbox" 
+                <input
+                  type="checkbox"
                   checked={bestSellerOnly}
                   onChange={toggleBestSeller}
                   className="w-4 h-4 rounded border-gray-300 text-[#e77600] focus:ring-[#e77600]"
@@ -217,8 +360,8 @@ export default function Home({
               </label>
 
               <label className="flex items-center gap-2 cursor-pointer group">
-                <input 
-                  type="checkbox" 
+                <input
+                  type="checkbox"
                   checked={dealsOnly}
                   onChange={toggleDeals}
                   className="w-4 h-4 rounded border-gray-300 text-[#e77600] focus:ring-[#e77600]"
@@ -232,7 +375,7 @@ export default function Home({
               <div className="space-y-2">
                 {[4, 3, 2, 1].map((stars) => (
                   <button key={stars} className="flex items-center gap-2 text-sm text-gray-700 hover:text-[#C45500] w-full text-left">
-                    <span className="text-[#F3A847]">{'★'.repeat(stars)}{'☆'.repeat(5-stars)}</span>
+                    <span className="text-[#F3A847]">{'★'.repeat(stars)}{'☆'.repeat(5 - stars)}</span>
                     <span>& Up</span>
                   </button>
                 ))}
@@ -268,7 +411,7 @@ export default function Home({
               </div>
               <h3 className="text-xl font-medium mb-2">No items match your filters.</h3>
               <p className="text-gray-500 mb-6">Try adjusting your search criteria or clearing filters.</p>
-              <button 
+              <button
                 onClick={() => window.location.href = '/'}
                 className="bg-[#FFD814] hover:bg-[#F7CA00] text-black px-6 py-2 rounded-full shadow-sm text-sm font-medium"
               >

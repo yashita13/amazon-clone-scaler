@@ -9,35 +9,35 @@ datasource db {
 }
 
 model Product {
-  id          String      @id @default(cuid())
-  title       String
-  description String
-  price       Float
-  imageUrl    String
-  category    String
-  rating      Float       @default(0)
-  stock       Int         @default(100)
-  isBestSeller Boolean     @default(false)
-  oldPrice    Float?      
+  id                 String      @id @default(cuid())
+  title              String
+  description        String
+  price              Float
+  imageUrl           String
+  category           String
+  rating             Float       @default(0)
+  stock              Int         @default(100)
+  createdAt          DateTime    @default(now())
+  updatedAt          DateTime    @updatedAt
+  isBestSeller       Boolean     @default(false)
   discountPercentage Int?
-  isLimitedTimeDeal Boolean @default(false)
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
-  orderItems  OrderItem[]
-  wishlist    Wishlist[]
+  isLimitedTimeDeal  Boolean     @default(false)
+  oldPrice           Float?
+  orderItems         OrderItem[]
+  wishlist           Wishlist[]
 }
 
 model Order {
-  id        String      @id @default(cuid())
-  status    OrderStatus @default(PENDING)
-  total     Float
-  userEmail String?
-  userName  String?
-  address   String?
-  returnReason String?
-  returnType   String? // "RETURN" or "EXCHANGE"
+  id           String      @id @default(cuid())
+  status       OrderStatus @default(PENDING)
+  total        Float
   createdAt    DateTime    @default(now())
   updatedAt    DateTime    @updatedAt
+  address      String?
+  userEmail    String?
+  userName     String?
+  returnReason String?
+  returnType   String?
   items        OrderItem[]
 }
 
@@ -53,23 +53,24 @@ model OrderItem {
 
 model User {
   id        String   @id @default(cuid())
-  name      String
   email     String   @unique
-  phone     String
-  password  String
+  name      String
   createdAt DateTime @default(now())
+  password  String
+  phone     String
 }
 
 model OTPVerification {
   id        String   @id @default(cuid())
   email     String
   code      String
+  expiresAt DateTime
   name      String?
   password  String?
   phone     String?
-  expiresAt DateTime
-  @@index([email])
   createdAt DateTime @default(now())
+
+  @@index([email])
 }
 
 model Wishlist {

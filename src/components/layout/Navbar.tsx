@@ -23,6 +23,7 @@ export default function Navbar() {
   useEffect(() => {
     setMounted(true);
   }, []);
+  const wishlistCount = wishlistItems.length;
 
   const categories = [
     "All Categories",
@@ -82,6 +83,9 @@ export default function Navbar() {
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
+    if (search.trim()) {
+      localStorage.setItem("amazon-yashita-latest-search", search.trim());
+    }
     const params = new URLSearchParams();
     if (search) params.set("search", search);
     if (category && category !== "All Categories") params.set("category", category);
@@ -90,7 +94,7 @@ export default function Navbar() {
   };
 
   return (
-    <header className="flex flex-col">
+    <header className="flex flex-col sticky top-0 z-[100] shadow-md">
       {/* Top Main Nav */}
       <div className="bg-[#131921] px-4 py-2 flex items-center justify-between space-x-4">
 
@@ -154,9 +158,22 @@ export default function Navbar() {
             <p className="font-bold">& Orders</p>
           </Link>
 
-          <Link href="/wishlist" className="hidden lg:block cursor-pointer border border-transparent hover:border-white p-1 rounded-sm">
+          {/* <Link href="/wishlist" className="hidden lg:block cursor-pointer border border-transparent hover:border-white p-1 rounded-sm">
             <p>Your</p>
             <p className="font-bold">Wishlist</p>
+          </Link> */}
+          <Link href="/wishlist" className="hidden lg:flex items-center cursor-pointer border border-transparent hover:border-white p-1 rounded-sm relative">
+            <div className="relative flex items-center">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-8 h-8">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.015-4.5-4.5-4.5-1.74 0-3.24 1-4 2.44-.76-1.44-2.26-2.44-4-2.44C5.015 3.75 3 5.765 3 8.25c0 6.75 9 11.25 9 11.25s9-4.5 9-11.25Z" />
+              </svg>
+
+              <span className="absolute -top-2 -right-2 text-[#FF9900] font-bold text-sm">
+                {mounted ? wishlistCount : 0}
+              </span>
+            </div>
+
+            <span className="font-bold mt-2 ml-1 hidden sm:inline">Wishlist</span>
           </Link>
 
           <Link href="/cart" className="flex items-center cursor-pointer border border-transparent hover:border-white p-1 rounded-sm relative">
@@ -200,8 +217,8 @@ export default function Navbar() {
           <span className="font-bold">All</span>
         </Link>
         {subNavLinks.map((link) => (
-          <Link 
-            key={link.label} 
+          <Link
+            key={link.label}
             href={link.value ? `/?category=${encodeURIComponent(link.value)}` : "/"}
             className="cursor-pointer hover:border-white border border-transparent p-1"
           >
