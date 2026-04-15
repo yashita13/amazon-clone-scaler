@@ -135,9 +135,18 @@ export default function OrdersPage() {
 
               {/* Footer actions */}
               <div className="px-6 py-3 border-t border-gray-100 flex gap-3">
-                <Link href={`/orders/${order.id}`} className="text-sm bg-[#FF9900] hover:bg-[#F3A847] text-black font-medium py-1.5 px-4 rounded border border-[#a88734] shadow-sm">
-                  View order
+                <Link href={`/orders/${order.id}`} className="text-sm bg-gray-50 hover:bg-gray-100 text-gray-800 font-medium py-1.5 px-4 rounded border border-gray-300 shadow-sm">
+                  View order details
                 </Link>
+                <button
+                  onClick={() => {
+                    // Logic to buy first item again as a shortcut or go to details
+                    router.push(`/orders/${order.id}`);
+                  }}
+                  className="text-sm bg-[#FFD814] hover:bg-[#F7CA00] text-black font-medium py-1.5 px-4 rounded border border-[#FCD200] shadow-sm"
+                >
+                  Buy it again
+                </button>
               </div>
             </div>
           ))}

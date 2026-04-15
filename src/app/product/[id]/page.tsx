@@ -33,6 +33,12 @@ export default function ProductDetail({
 
   const isWishlisted = product ? isInWishlist(product.id) : false;
 
+  const [selectedSize, setSelectedSize] = useState<string>("8 UK");
+  const [selectedColor, setSelectedColor] = useState<string>("BLACK");
+
+  const colors = ["BLACK", "WHITE", "GREY", "RED"];
+  const sizes = ["6 ", "7 ", "8 ", "9 ", "10 ", "11 "];
+
   // Scroll to top on mount
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -136,17 +142,17 @@ export default function ProductDetail({
   };
 
 
-
   return (
     <div className="bg-white min-h-screen">
       <div className="max-w-[1500px] mx-auto p-4 sm:p-8">
-        <Link href="/" className="text-[#007185] hover:text-[#C7511F] text-sm flex items-center mb-6">
+
+        <Link href="/" className="text-[#007185] hover:underline text-sm flex items-center mb-6">
           &larr; Back to results
         </Link>
 
         <div className="flex flex-col md:flex-row gap-8 lg:gap-12">
           {/* Left: Image Panel with Thumbnails */}
-          <div className="md:w-1/2 lg:w-2/5 sticky top-4 self-start">
+          <div className="md:w-1/2 lg:w-2/5 sticky top-24 self-start">
             <div className="flex gap-3">
               {/* Thumbnail Strip */}
               <div className="flex flex-col gap-2">
@@ -167,16 +173,17 @@ export default function ProductDetail({
                 ))}
               </div>
               {/* Main Image */}
-              <div className="flex-1 relative aspect-square">
+              <div className="flex-1 relative aspect-square group overflow-hidden bg-gray-50 rounded">
                 <Image
                   src={mainImgSrc || product.imageUrl}
                   alt={product.title}
                   fill
-                  className="object-contain"
+                  className="object-contain mix-blend-multiply group-hover:scale-110 transition-transform duration-500"
                   priority
                 />
               </div>
             </div>
+            <p className="text-center text-xs text-gray-500 mt-4">Roll over image to zoom in</p>
           </div>
 
           {/* Middle/Right: Details Panel */}
@@ -184,98 +191,205 @@ export default function ProductDetail({
 
             {/* Product Info */}
             <div className="flex-1">
-              <h1 className="text-2xl sm:text-3xl font-medium leading-tight mb-2">
+              <h1 className="text-2xl sm:text-2xl font-medium leading-tight mb-1 text-[#0F1111]">
                 {product.title}
               </h1>
 
-              <Link href={`/?category=${encodeURIComponent(product.category)}`} className="text-[#007185] hover:text-[#C7511F] hover:underline mb-2 block">
-                {product.category}
-              </Link>
-
-              <div className="flex text-[#F3A847] items-center my-2 text-lg border-b pb-4">
-                {Array(Math.floor(product.rating))
-                  .fill(1)
-                  .map((_, i) => (
-                    <span key={i}>★</span>
-                  ))}
-                <span className="text-[#007185] ml-4 hover:underline text-sm">{product.rating} out of 5 stars</span>
+              <div className="flex items-center gap-2 mb-2">
+                <Link href={`/?category=${encodeURIComponent(product.category)}`} className="text-[#007185] hover:text-[#C7511F] hover:underline text-sm font-medium">
+                  Visit the {product.category} store
+                </Link>
+                <div className="flex text-[#F3A847] items-center text-sm">
+                  <span className="font-bold mr-1 text-black">{product.rating}</span>
+                  {Array(Math.floor(product.rating))
+                    .fill(1)
+                    .map((_, i) => (
+                      <span key={i}>★</span>
+                    ))}
+                  <span className="text-[#007185] ml-2 hover:underline">12,453 ratings</span>
+                </div>
               </div>
 
-              <div className="py-4 border-b">
-                {product.isLimitedTimeDeal && (
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className="bg-[#B12704] text-white px-2 py-1 text-sm font-bold rounded-sm">
-                      Limited time deal
-                    </span>
+              <div className="py-2 border-t border-b border-gray-100 flex gap-4 overflow-x-auto no-scrollbar">
+                <div className="flex flex-col items-center min-w-[70px] text-center">
+                  <div className="w-8 h-8 relative mb-1">
+                    <Image src="https://m.media-amazon.com/images/G/31/A2I-Convert/mobile/IconFarm/icon-returns._CB562506492_.png" alt="Return" fill className="object-contain" />
                   </div>
-                )}
-                <div className="flex items-baseline gap-3 mb-1">
-                  {product.discountPercentage && (
-                    <span className="text-red-600 text-3xl font-light">-{product.discountPercentage}%</span>
-                  )}
-                  <span className="text-3xl font-medium">{formatINR(product.price)}</span>
+                  <span className="text-[10px] text-[#007185] leading-tight">10 days Return & Exchange</span>
                 </div>
-                {product.oldPrice && (
-                  <div className="text-sm text-gray-500">
-                    M.R.P.: <span className="line-through">{formatINR(product.oldPrice)}</span>
+                <div className="flex flex-col items-center min-w-[70px] text-center">
+                  <div className="w-8 h-8 relative mb-1">
+                    <Image src="https://m.media-amazon.com/images/G/31/A2I-Convert/mobile/IconFarm/trust_icon_free_shipping_81px._CB562549966_.png" alt="Delivery" fill className="object-contain" />
                   </div>
-                )}
-                <div className="text-sm text-gray-500 mt-1">
-                  <span className="text-[#007185] hover:text-[#C7511F] hover:underline cursor-pointer">FREE Returns</span>
+                  <span className="text-[10px] text-[#007185] leading-tight">Free Delivery</span>
                 </div>
-                <div className="mt-4 flex flex-col gap-2">
-                  <p className="text-[#565959] text-sm">
-                    {Math.floor(product.rating * 1.5)}K+ bought in past month
-                  </p>
-                  <div className="p-3 bg-white border border-gray-300 rounded-lg flex flex-col gap-1">
-                    <span className="text-xs font-bold text-gray-700 uppercase">Bank Offer</span>
-                    <p className="text-sm text-gray-800">Upto ₹1,500.00 discount on select Credit Cards</p>
-                    <span className="text-[#007185] text-xs hover:underline cursor-pointer">11 offers </span>
+                <div className="flex flex-col items-center min-w-[70px] text-center">
+                  <div className="w-8 h-8 relative mb-1">
+                    <Image src="https://m.media-amazon.com/images/G/31/A2I-Convert/mobile/IconFarm/icon-top-brand._CB562506657_.png" alt="Top Brand" fill className="object-contain" />
                   </div>
+                  <span className="text-[10px] text-[#007185] leading-tight">Top Brand</span>
+                </div>
+                <div className="flex flex-col items-center min-w-[70px] text-center">
+                  <div className="w-8 h-8 relative mb-1">
+                    <Image src="https://m.media-amazon.com/images/G/31/A2I-Convert/mobile/IconFarm/icon-amazon-delivered._CB562550117_.png" alt="Amazon Delivered" fill className="object-contain" />
+                  </div>
+                  <span className="text-[10px] text-[#007185] leading-tight">Amazon Delivered</span>
                 </div>
               </div>
 
               <div className="py-4">
-                <h3 className="font-bold text-lg mb-2">About this item</h3>
-                <p className="text-base text-gray-800 leading-relaxed">
-                  {product.description}
-                </p>
+                {product.isLimitedTimeDeal && (
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="bg-[#B12704] text-white px-2 py-1 text-xs font-bold rounded-sm">
+                      Limited time deal
+                    </span>
+                  </div>
+                )}
+                <div className="flex items-baseline gap-2 mb-1">
+                  {product.discountPercentage && (
+                    <span className="text-[#CC0C39] text-3xl font-light">-{product.discountPercentage}%</span>
+                  )}
+                  <div className="flex items-start">
+                    <span className="text-xs mt-1.5 font-medium">₹</span>
+                    <span className="text-3xl font-medium">{product.price.toLocaleString("en-IN")}</span>
+                    <span className="text-xs mt-1.5 font-medium">00</span>
+                  </div>
+                </div>
+                {product.oldPrice && (
+                  <div className="text-sm text-gray-500">
+                    M.R.P.: <span className="line-through">₹{product.oldPrice.toLocaleString("en-IN")}</span>
+                  </div>
+                )}
+                <div className="text-sm text-gray-900 mt-1 font-medium">
+                  Inclusive of all taxes
+                </div>
+                <div className="text-sm text-gray-900 mt-2">
+                  <span className="font-bold">EMI</span> starts at ₹543. No Cost EMI available <span className="text-[#007185] hover:underline cursor-pointer">EMI options ▾</span>
+                </div>
+              </div>
+
+              {/* Offers Section */}
+              <div className="border border-gray-200 rounded-lg p-4 mb-6">
+                <div className="flex items-center gap-2 mb-3">
+                  <svg className="w-5 h-5 text-red-600" fill="currentColor" viewBox="0 0 24 24"><path d="M12.75 3.75a.75.75 0 0 0-1.5 0v3.75h-3.75a.75.75 0 0 0 0 1.5h3.75v3.75a.75.75 0 0 0 1.5 0v-3.75h3.75a.75.75 0 0 0 0-1.5h-3.75V3.75Z" /></svg>
+                  <span className="font-bold text-sm">Save Extra with 4 offers</span>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="border border-gray-200 rounded p-3 hover:shadow-md cursor-pointer transition-shadow">
+                    <h5 className="font-bold text-sm mb-1">Bank Offer</h5>
+                    <p className="text-xs text-gray-700">Upto ₹1,500.00 discount on select Credit Cards</p>
+                    <span className="text-[#007185] text-[10px] font-bold uppercase mt-2 block">11 offers ▾</span>
+                  </div>
+                  <div className="border border-gray-200 rounded p-3 hover:shadow-md cursor-pointer transition-shadow">
+                    <h5 className="font-bold text-sm mb-1">Partner Offers</h5>
+                    <p className="text-xs text-gray-700">Get GST invoice and save up to 28% on business purchases</p>
+                    <span className="text-[#007185] text-[10px] font-bold uppercase mt-2 block">1 offer ▾</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Color/Size Selection */}
+              <div className="space-y-6 mb-8">
+                <div>
+                  <h4 className="text-sm font-bold mb-3 uppercase tracking-tight text-gray-600">Colour: <span className="text-black">{selectedColor}</span></h4>
+                  <div className="flex flex-wrap gap-2">
+                    {colors.map(c => (
+                      <button
+                        key={c}
+                        onClick={() => setSelectedColor(c)}
+                        className={`px-4 py-2 border rounded text-xs font-bold transition-all ${selectedColor === c ? 'border-[#C45500] bg-orange-50 ring-1 ring-[#C45500]' : 'border-gray-300 hover:border-gray-500'}`}
+                      >
+                        {c}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <div className="flex justify-between items-center mb-3">
+                    <h4 className="text-sm font-bold uppercase tracking-tight text-gray-600">Size: <span className="text-black">{selectedSize}</span></h4>
+                    <span className="text-[#007185] text-xs font-bold hover:underline cursor-pointer">Size Chart ▾</span>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {sizes.map(s => (
+                      <button
+                        key={s}
+                        onClick={() => setSelectedSize(s)}
+                        className={`min-w-[60px] h-10 border rounded text-xs font-bold transition-all ${selectedSize === s ? 'border-[#C45500] bg-orange-50 ring-1 ring-[#C45500]' : 'border-gray-300 hover:border-gray-500'}`}
+                      >
+                        {s}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Top Highlights */}
+              <div className="mb-8">
+                <h4 className="text-lg font-bold mb-4">Top highlights</h4>
+                <div className="grid grid-cols-2 gap-y-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-6 h-6 text-gray-400">
+                      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 4.5v15m7.5-7.5h-15" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" /></svg>
+                    </div>
+                    <div>
+                      <p className="text-sm font-bold">Weight</p>
+                      <p className="text-xs text-gray-500">600 Grams</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="w-6 h-6 text-gray-400">
+                      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" /></svg>
+                    </div>
+                    <div>
+                      <p className="text-sm font-bold">Brand</p>
+                      <p className="text-xs text-gray-500">Nike</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="py-4 border-t">
+                <h3 className="font-bold text-lg mb-2">More about this product</h3>
+                <ul className="list-disc ml-5 space-y-2 text-sm text-gray-800">
+                  <li>Premium manufacturing and high-quality materials for maximum comfort</li>
+                  <li>Responsive cushioning provides an energized ride for everyday road running</li>
+                  <li>Lightweight design with breathable mesh upper</li>
+                  <li>Durable rubber outsole for superior traction and grip</li>
+                </ul>
               </div>
             </div>
 
             {/* Right Side: Buy Box (lg screen) */}
             <div className="lg:w-1/3 xl:w-[300px]">
-              <div className="border border-gray-300 rounded p-4 shadow-sm sticky top-4">
-                <div className="text-2xl font-medium mb-1">
-                  {formatINR(product.price)}
+              <div className="border border-gray-300 rounded-lg p-4 shadow-sm sticky top-24 bg-white">
+                <div className="flex items-start mb-1">
+                  <span className="text-xs mt-1.5 font-medium">₹</span>
+                  <span className="text-2xl font-medium">{product.price.toLocaleString("en-IN")}</span>
+                  <span className="text-xs mt-1.5 font-medium">00</span>
                 </div>
-                {product.oldPrice && (
-                  <div className="text-sm text-gray-500 mb-2">
-                    M.R.P.: <span className="line-through">{formatINR(product.oldPrice)}</span>
-                  </div>
-                )}
-                <div className="text-[#007185] hover:text-[#C7511F] text-sm hover:underline mb-4 cursor-pointer">
+                <div className="text-[#007185] text-sm hover:underline mb-4 cursor-pointer">
                   FREE Returns
                 </div>
-                <div className="text-sm mb-4">
-                  <span className="text-[#007185] hover:text-[#C7511F] hover:underline cursor-pointer">FREE delivery</span><br />
-                  Fastest delivery <span className="font-bold">Tomorrow</span>. Order within <span className="text-green-700">22 hrs 14 mins</span>
+                <div className="text-xs mb-4">
+                  <span className="text-[#007185] hover:underline cursor-pointer">FREE delivery</span> <span className="font-bold">Wednesday, 20 April</span>.<br />
+                  Or fastest delivery <span className="font-bold">Tomorrow</span>. Order within <span className="text-green-700">22 hrs 14 mins</span>
                 </div>
 
-                <h4 className="text-green-700 text-xl mb-4 font-medium">
+                <h4 className="text-green-700 text-lg mb-4 font-medium">
                   {product.stock > 0 ? "In Stock." : "Out of Stock"}
                 </h4>
 
                 {product.stock > 0 && (
                   <>
                     <div className="mb-4">
-                      <label htmlFor="quantity" className="text-sm border border-gray-300 rounded bg-gray-100 hover:bg-gray-200 shadow-sm px-2 py-1 flex items-center max-w-[120px]">
+                      <label htmlFor="quantity" className="text-sm border border-gray-300 rounded bg-[#F0F2F2] hover:bg-[#E3E6E6] shadow-sm px-2 py-1 flex items-center w-full">
                         Qty:
                         <select
                           id="quantity"
                           value={quantity}
                           onChange={(e) => setQuantity(parseInt(e.target.value))}
-                          className="bg-transparent border-none outline-none ml-2 w-full cursor-pointer"
+                          className="bg-transparent border-none outline-none ml-2 w-full cursor-pointer font-bold"
                         >
                           {[...Array(Math.min(10, product.stock))].map((_, i) => (
                             <option key={i + 1} value={i + 1}>{i + 1}</option>
@@ -284,32 +398,43 @@ export default function ProductDetail({
                       </label>
                     </div>
 
-                    <button
-                      onClick={handleAddToCart}
-                      className="w-full bg-[#FFD814] hover:bg-[#F7CA00] text-black border border-[#FCD200] py-2 rounded-full shadow-sm mb-3"
-                    >
-                      Add to Cart
-                    </button>
+                    <div className="space-y-2">
+                      <button
+                        onClick={handleAddToCart}
+                        className="w-full bg-[#FFD814] hover:bg-[#F7CA00] text-[#0F1111] py-2 rounded-full shadow-[0_2px_5px_0_rgba(213,217,217,0.5)] border border-[#FCD200] text-sm font-medium transition-colors"
+                      >
+                        Add to Cart
+                      </button>
 
-                    <button
-                      onClick={handleBuyNow}
-                      className="w-full bg-[#FFA41C] hover:bg-[#FA8900] text-black border border-[#FF8F00] py-2 rounded-full shadow-sm mb-4"
-                    >
-                      Buy Now
-                    </button>
+                      <button
+                        onClick={handleBuyNow}
+                        className="w-full bg-[#FFA41C] hover:bg-[#FA8900] text-[#0F1111] py-2 rounded-full shadow-[0_2px_5px_0_rgba(213,217,217,0.5)] border border-[#FF8F00] text-sm font-medium transition-colors"
+                      >
+                        Buy Now
+                      </button>
+                    </div>
 
-                    <button
-                      onClick={() => product && toggleWishlist(product)}
-                      className={`w-full flex items-center justify-center gap-2 py-2 rounded-full border border-gray-300 shadow-sm text-sm font-medium transition-colors ${isWishlisted ? 'bg-red-50 border-red-200 text-red-700 hover:bg-red-100' : 'bg-white hover:bg-gray-100 text-gray-700'}`}
-                    >
-                      <Heart className={`w-4 h-4 ${isWishlisted ? 'fill-red-500 text-red-500' : ''}`} />
-                      {isWishlisted ? "In Wishlist" : "Add to Wishlist"}
-                    </button>
+                    <div className="mt-4 pt-4 border-t space-y-4">
+                      <button
+                        onClick={() => product && toggleWishlist(product)}
+                        className={`w-full flex items-center justify-center gap-2 py-2 rounded-lg border border-gray-300 shadow-sm text-xs font-medium transition-colors ${isWishlisted ? 'bg-red-50 border-red-200 text-red-700' : 'bg-white hover:bg-gray-100 text-gray-700'}`}
+                      >
+                        <Heart className={`w-3 h-3 ${isWishlisted ? 'fill-red-500 text-red-500' : ''}`} />
+                        {isWishlisted ? "In Wishlist" : "Add to Wish List"}
+                      </button>
 
-                    <div className="flex items-center text-gray-500 text-sm mt-3 space-x-2 justify-center">
-                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
-                      </svg>
+                      {/* Limited Quantity Note */}
+                      <div className="bg-blue-50/50 border border-blue-100 p-3 rounded text-[10px] text-gray-600 flex gap-2">
+                        <div className="bg-blue-600 text-white px-1.5 py-0.5 h-fit text-[8px] font-bold uppercase rounded-sm">Limited Quantity</div>
+                        <p>
+                          <span className="font-bold block text-gray-800 mb-0.5">Note: The order quantity is limited to 3 units per customer.</span>
+                          Please note that orders which exceed the quantity limit will be auto-canceled. This is applicable across sellers.
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center text-gray-500 text-[10px] mt-4 space-x-2 text-center w-full justify-center">
+                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" /></svg>
                       <span className="text-[#007185] hover:text-[#C7511F] hover:underline cursor-pointer">Secure transaction</span>
                     </div>
                   </>

@@ -2,8 +2,9 @@
 
 import { formatINR } from "@/lib/formatPrice";
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { useCart } from "@/context/CartContext";
 
 interface Product {
   id: string;
@@ -35,6 +36,8 @@ const STEP_LABELS = ["Ordered", "Shipped", "Out for delivery", "Delivered"];
 
 export default function OrderDetailPage() {
   const { id } = useParams<{ id: string }>();
+  const router = useRouter();
+  const { addToCart } = useCart();
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -189,7 +192,34 @@ export default function OrderDetailPage() {
                   </Link>
                   <p className="text-gray-400 text-xs mt-0.5">{item.product.category}</p>
                   <p className="text-gray-600 mt-1">Qty: {item.quantity}</p>
-                  <p className="font-bold mt-1">{formatINR(item.unitPrice)}</p>
+                  <p className="font-bold mt-1 mb-3">{formatINR(item.unitPrice)}</p>
+                  
+                  <button
+                    onClick={() => {
+                      // Fetch full product data if needed, or just use what we have
+                      // The addToCart expects a Product object
+                      addToCart({
+                        id: item.product.id,
+                        title: item.product.title,
+                        imageUrl: item.product.imageUrl,
+                        category: item.product.category,
+                        price: item.unitPrice,
+                        description: "", // Fallback
+                        rating: 4.5, // Fallback
+                        stock: 10, // Fallback
+                        createdAt: new Date(),
+                        updatedAt: new Date(),
+                        isBestSeller: false,
+                        discountPercentage: null,
+                        isLimitedTimeDeal: false,
+                        oldPrice: null,
+                      }, 1);
+                      router.push("/cart");
+                    }}
+                    className="bg-[#FFD814] hover:bg-[#F7CA00] text-black text-xs px-4 py-1.5 rounded shadow-sm border border-[#FCD200] font-medium"
+                  >
+                    Buy it again
+                  </button>
                 </div>
               </div>
             ))}
