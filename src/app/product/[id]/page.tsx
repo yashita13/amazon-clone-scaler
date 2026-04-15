@@ -10,22 +10,22 @@ import { formatINR } from "@/lib/formatPrice";
 
 const FALLBACK_IMAGE = "https://picsum.photos/800/800";
 
-export default function ProductDetail({ 
-  params 
-}: { 
-  params: Promise<{ id: string }> 
+export default function ProductDetail({
+  params
+}: {
+  params: Promise<{ id: string }>
 }) {
   const resolvedParams = use(params);
   const productId = resolvedParams.id;
   const router = useRouter();
-  
+
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [quantity, setQuantity] = useState(1);
   const [mainImgSrc, setMainImgSrc] = useState("");
   const [selectedThumb, setSelectedThumb] = useState(0);
-  
+
   const { addToCart } = useCart();
 
   // Scroll to top on mount
@@ -166,7 +166,7 @@ export default function ProductDetail({
               </div>
               {/* Main Image */}
               <div className="flex-1 relative aspect-square">
-                <Image 
+                <Image
                   src={mainImgSrc}
                   alt={product.title}
                   fill
@@ -180,17 +180,17 @@ export default function ProductDetail({
 
           {/* Middle/Right: Details Panel */}
           <div className="md:w-1/2 lg:w-3/5 flex flex-col lg:flex-row gap-8">
-            
+
             {/* Product Info */}
             <div className="flex-1">
               <h1 className="text-2xl sm:text-3xl font-medium leading-tight mb-2">
                 {product.title}
               </h1>
-              
+
               <Link href={`/?category=${encodeURIComponent(product.category)}`} className="text-[#007185] hover:text-[#C7511F] hover:underline mb-2 block">
                 {product.category}
               </Link>
-              
+
               <div className="flex text-[#F3A847] items-center my-2 text-lg border-b pb-4">
                 {Array(Math.floor(product.rating))
                   .fill(1)
@@ -234,10 +234,10 @@ export default function ProductDetail({
                   FREE Returns
                 </div>
                 <div className="text-sm mb-4">
-                  <span className="text-[#007185] hover:text-[#C7511F] hover:underline cursor-pointer">FREE delivery</span> 
+                  <span className="text-[#007185] hover:text-[#C7511F] hover:underline cursor-pointer">FREE delivery</span>
                   <span className="font-bold"> Wednesday, Dec 20</span>. Order within <span className="text-green-700">22 hrs 14 mins</span>
                 </div>
-                
+
                 <h4 className="text-green-700 text-xl mb-4 font-medium">
                   {product.stock > 0 ? "In Stock." : "Out of Stock"}
                 </h4>
@@ -246,28 +246,28 @@ export default function ProductDetail({
                   <>
                     <div className="mb-4">
                       <label htmlFor="quantity" className="text-sm border border-gray-300 rounded bg-gray-100 hover:bg-gray-200 shadow-sm px-2 py-1 flex items-center max-w-[120px]">
-                        Qty: 
-                        <select 
+                        Qty:
+                        <select
                           id="quantity"
                           value={quantity}
                           onChange={(e) => setQuantity(parseInt(e.target.value))}
                           className="bg-transparent border-none outline-none ml-2 w-full cursor-pointer"
                         >
                           {[...Array(Math.min(10, product.stock))].map((_, i) => (
-                            <option key={i+1} value={i+1}>{i+1}</option>
+                            <option key={i + 1} value={i + 1}>{i + 1}</option>
                           ))}
                         </select>
                       </label>
                     </div>
 
-                    <button 
+                    <button
                       onClick={handleAddToCart}
                       className="w-full bg-[#FFD814] hover:bg-[#F7CA00] text-black border border-[#FCD200] py-2 rounded-full shadow-sm mb-3"
                     >
                       Add to Cart
                     </button>
-                    
-                    <button 
+
+                    <button
                       onClick={handleBuyNow}
                       className="w-full bg-[#FFA41C] hover:bg-[#FA8900] text-black border border-[#FF8F00] py-2 rounded-full shadow-sm mb-2"
                     >

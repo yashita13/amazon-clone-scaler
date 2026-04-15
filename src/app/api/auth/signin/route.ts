@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import crypto from "crypto";
+import bcrypt from "bcryptjs";
 
 /**
  * POST /api/auth/signin
@@ -35,14 +35,10 @@ export async function POST(request: Request) {
       );
     }
 
-    // Verify password (salt:hash format stored at signup)
-    const [salt, storedHash] = user.passwordHash.split(":");
-    const attemptHash = crypto
-      .createHmac("sha256", salt)
-      .update(password)
-      .digest("hex");
+    // Verify password against hashed bcrypt password
+    const passwordMatch = await bcrypt.compare(password, user.password);
 
-    if (attemptHash !== storedHash) {
+    if (!passwordMatch) {
       return NextResponse.json(
         { error: "Invalid email or password" },
         { status: 401 }

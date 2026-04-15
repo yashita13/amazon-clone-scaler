@@ -1,9 +1,10 @@
 "use client";
 
 import { useCart } from "@/context/CartContext";
+import { useAuth } from "@/context/AuthContext";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { formatINR } from "@/lib/formatPrice";
 
 export default function Checkout() {
@@ -14,13 +15,27 @@ export default function Checkout() {
   const [error, setError] = useState<string | null>(null);
   const [orderConfirmed, setOrderConfirmed] = useState<string | null>(null);
 
+  const { user } = useAuth();
+
   const [formData, setFormData] = useState({
     name: "",
+    email: "",
+    mobile: "",
     address: "",
     city: "",
     zip: "",
     cardNumber: "",
   });
+
+  useEffect(() => {
+    if (user) {
+      setFormData(prev => ({
+        ...prev,
+        name: user.name || "",
+        email: user.email || "",
+      }));
+    }
+  }, [user]);
 
   if (cartItems.length === 0 && !orderConfirmed) {
     router.push("/cart");
@@ -42,10 +57,15 @@ export default function Checkout() {
     const payload = {
       items: cartItems.map(item => ({
         productId: item.product.id,
+        title: item.product.title,
+        imageUrl: item.product.imageUrl,
         quantity: item.quantity,
         unitPrice: item.product.price
       })),
-      total: orderTotal
+      total: orderTotal,
+      email: formData.email,
+      name: formData.name,
+      address: `${formData.address}, ${formData.city}, ${formData.zip}`
     };
 
     try {
@@ -117,6 +137,14 @@ export default function Checkout() {
             <div>
               <label className="block text-sm font-bold mb-1">Full name</label>
               <input required type="text" name="name" value={formData.name} onChange={handleChange} className="w-full border border-gray-400 rounded px-3 py-2 outline-none focus:border-amazon-orange focus:shadow-[0_0_3px_2px_rgba(255,153,0,0.5)]" />
+            </div>
+            <div>
+              <label className="block text-sm font-bold mb-1">Email address</label>
+              <input required type="email" name="email" value={formData.email} onChange={handleChange} placeholder="your@email.com" className="w-full border border-gray-400 rounded px-3 py-2 outline-none focus:border-amazon-orange focus:shadow-[0_0_3px_2px_rgba(255,153,0,0.5)]" />
+            </div>
+            <div>
+              <label className="block text-sm font-bold mb-1">Mobile number</label>
+              <input required type="tel" name="mobile" value={formData.mobile} onChange={handleChange} placeholder="10-digit mobile number" className="w-full border border-gray-400 rounded px-3 py-2 outline-none focus:border-amazon-orange focus:shadow-[0_0_3px_2px_rgba(255,153,0,0.5)]" />
             </div>
             <div>
               <label className="block text-sm font-bold mb-1">Address</label>

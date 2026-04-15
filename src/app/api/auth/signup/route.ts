@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { sendOTP } from "@/lib/notifications";
-import crypto from "crypto";
+import { sendOtpEmail } from "@/lib/mailer";
+import bcrypt from "bcryptjs";
 
 /**
  * POST /api/auth/signup
@@ -18,8 +18,8 @@ export async function POST(request: Request) {
     const { email, password, name, mobile } = body;
 
     // Validate required fields
-    if (!email || typeof email !== "string") {
-      return NextResponse.json({ error: "Email is required" }, { status: 400 });
+    if (!email || typeof email !== "string" || !name || !mobile) {
+      return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
     if (!password || typeof password !== "string" || password.length < 6) {
       return NextResponse.json(
@@ -37,22 +37,16 @@ export async function POST(request: Request) {
       );
     }
 
-    // Hash password using Node's built-in crypto (SHA-256 + random salt)
-    // In production, use bcrypt or argon2
-    const salt = crypto.randomBytes(16).toString("hex");
-    const passwordHash = crypto
-      .createHmac("sha256", salt)
-      .update(password)
-      .digest("hex");
-    const storedHash = `${salt}:${passwordHash}`;
+    // Hash password using bcryptjs
+    const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Create User
+    // Create User (matching new schema)
     const user = await prisma.user.create({
       data: {
         email,
-        passwordHash: storedHash,
-        name: name || null,
-        mobile: mobile || null,
+        password: hashedPassword,
+        name,
+        phone: mobile,
       },
     });
 
@@ -72,8 +66,8 @@ export async function POST(request: Request) {
       },
     });
 
-    // Send OTP via mock email/SMS
-    await sendOTP(email, otp, mobile);
+    // Send OTP via email
+    await sendOtpEmail(email, otp);
 
     return NextResponse.json(
       {

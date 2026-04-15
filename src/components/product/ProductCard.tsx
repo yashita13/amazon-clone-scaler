@@ -9,7 +9,7 @@ import { useState } from "react";
 
 const FALLBACK_IMAGE = "https://picsum.photos/800/800";
 
-export default function ProductCard({ product }: { product: Product }) {
+export default function ProductCard({ product, priority = false }: { product: Product, priority?: boolean }) {
   const { addToCart } = useCart();
   const [imgSrc, setImgSrc] = useState(product.imageUrl);
 
@@ -27,6 +27,7 @@ export default function ProductCard({ product }: { product: Product }) {
             fill 
             className="object-contain"
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            priority={priority}
             onError={() => setImgSrc(FALLBACK_IMAGE)}
           />
         </div>
