@@ -23,15 +23,23 @@ export default function Navbar() {
   }, []);
 
   const categories = [
-    "All Categories", "Alexa Skills", "Amazon Devices", "Fashion",
-    "Fresh", "Pharmacy", "Appliances", "Apps & Games", "Baby",
-    "Beauty", "Books", "Electronics", "Furniture"
+    "All Categories", 
+    "Electronics", 
+    "Jewellery", 
+    "Men's Clothing", 
+    "Women's Clothing", 
+    "Office Products"
   ];
 
   const subNavLinks = [
-    "Fresh", "MX Player", "Sell", "Best Sellers", "Mobiles",
-    "Today's Deals", "Customer Service", "New Releases",
-    "Prime", "Fashion", "Electronics", "Amazon Pay"
+    { label: "Electronics", value: "Electronics" },
+    { label: "Jewellery", value: "Jewellery" },
+    { label: "Men's Clothing", value: "Men's Clothing" },
+    { label: "Women's Clothing", value: "Women's Clothing" },
+    { label: "Office Products", value: "Office Products" },
+    { label: "Today's Deals", value: "" },
+    { label: "Mobiles", value: "" },
+    { label: "Best Sellers", value: "" },
   ];
 
   const handleSearch = (e: React.FormEvent) => {
@@ -142,16 +150,20 @@ export default function Navbar() {
 
       {/* Category Links Band */}
       <div className="bg-[#232f3e] text-white text-sm px-4 py-1 flex space-x-4 overflow-x-auto whitespace-nowrap scrollbar-hide">
-        <div className="flex items-center space-x-1 cursor-pointer hover:border-white border border-transparent p-1">
+        <Link href="/" className="flex items-center space-x-1 cursor-pointer hover:border-white border border-transparent p-1">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
             <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
           </svg>
           <span className="font-bold">All</span>
-        </div>
+        </Link>
         {subNavLinks.map((link) => (
-          <span key={link} className="cursor-pointer hover:border-white border border-transparent p-1">
-            {link}
-          </span>
+          <Link 
+            key={link.label} 
+            href={link.value ? `/?category=${encodeURIComponent(link.value)}` : "/"}
+            className="cursor-pointer hover:border-white border border-transparent p-1"
+          >
+            {link.label}
+          </Link>
         ))}
       </div>
     </header>
