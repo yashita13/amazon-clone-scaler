@@ -4,9 +4,14 @@ import Image from "next/image";
 import Link from "next/link";
 import { Product } from "@prisma/client";
 import { useCart } from "@/context/CartContext";
+import { formatINR } from "@/lib/formatPrice";
+import { useState } from "react";
+
+const FALLBACK_IMAGE = "https://picsum.photos/800/800";
 
 export default function ProductCard({ product }: { product: Product }) {
   const { addToCart } = useCart();
+  const [imgSrc, setImgSrc] = useState(product.imageUrl);
 
   return (
     <div className="flex flex-col bg-white z-30 p-5 rounded-none sm:rounded-sm border border-gray-200 hover:shadow-lg transition-shadow relative">
@@ -17,11 +22,12 @@ export default function ProductCard({ product }: { product: Product }) {
       <Link href={`/product/${product.id}`} className="flex flex-col flex-1 items-center">
         <div className="w-full aspect-square relative mb-2 flex items-center justify-center p-2">
           <Image 
-            src={product.imageUrl} 
+            src={imgSrc} 
             alt={product.title} 
             fill 
             className="object-contain"
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            onError={() => setImgSrc(FALLBACK_IMAGE)}
           />
         </div>
         
@@ -37,12 +43,8 @@ export default function ProductCard({ product }: { product: Product }) {
             <span className="text-blue-500 ml-2 hover:underline">{product.rating}</span>
           </div>
           
-          <div className="flex items-start mt-1">
-            <span className="text-xs mt-[2px] font-medium">$</span>
-            <span className="text-2xl font-medium">{Math.floor(product.price)}</span>
-            <span className="text-xs mt-[2px] font-medium">
-              {((product.price % 1) * 100).toFixed(0).padStart(2, '0')}
-            </span>
+          <div className="flex items-baseline mt-1">
+            <span className="text-2xl font-medium">{formatINR(product.price)}</span>
           </div>
 
           <div className="flex items-center mt-1">

@@ -4,6 +4,7 @@ import { useCart } from "@/context/CartContext";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { formatINR } from "@/lib/formatPrice";
 
 export default function Cart() {
   const { cartItems, updateQty, removeFromCart, cartTotal, itemCount } = useCart();
@@ -90,7 +91,7 @@ export default function Cart() {
                   </div>
                   <div className="mt-4 sm:mt-0 text-right">
                      <p className="text-xl font-bold">
-                       ${item.product.price.toFixed(2)}
+                       {formatINR(item.product.price)}
                      </p>
                   </div>
                 </div>
@@ -100,7 +101,7 @@ export default function Cart() {
 
           <div className="text-right mt-4">
             <p className="text-lg">
-              Subtotal ({itemCount} item{itemCount !== 1 ? 's' : ''}): <span className="font-bold">${cartTotal.toFixed(2)}</span>
+              Subtotal ({itemCount} item{itemCount !== 1 ? 's' : ''}): <span className="font-bold">{formatINR(cartTotal)}</span>
             </p>
           </div>
         </div>
@@ -117,7 +118,7 @@ export default function Cart() {
             </div>
 
             <h2 className="text-xl mb-4">
-              Subtotal ({itemCount} item{itemCount !== 1 ? 's' : ''}): <span className="font-bold whitespace-nowrap">${cartTotal.toFixed(2)}</span>
+              Subtotal ({itemCount} item{itemCount !== 1 ? 's' : ''}): <span className="font-bold whitespace-nowrap">{formatINR(cartTotal)}</span>
             </h2>
 
             <div className="flex items-center space-x-2 text-sm text-gray-700 mb-6 border-b pb-4">
@@ -128,15 +129,15 @@ export default function Cart() {
             <div className="space-y-2 mb-4 text-sm text-gray-700">
                <div className="flex justify-between">
                  <span>Items:</span>
-                 <span>${cartTotal.toFixed(2)}</span>
+                 <span>{formatINR(cartTotal)}</span>
                </div>
                <div className="flex justify-between">
                  <span>Estimated Tax:</span>
-                 <span>${estimatedTax.toFixed(2)}</span>
+                 <span>{formatINR(estimatedTax)}</span>
                </div>
                <div className="flex justify-between font-bold text-[#b12704] text-lg py-2 border-t mt-2">
                  <span>Total:</span>
-                 <span>${orderTotal.toFixed(2)}</span>
+                 <span>{formatINR(orderTotal)}</span>
                </div>
             </div>
 

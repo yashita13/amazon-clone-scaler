@@ -6,6 +6,9 @@ import Image from "next/image";
 import Link from "next/link";
 import { useCart } from "@/context/CartContext";
 import { useRouter } from "next/navigation";
+import { formatINR } from "@/lib/formatPrice";
+
+const FALLBACK_IMAGE = "https://picsum.photos/800/800";
 
 export default function ProductDetail({ 
   params 
@@ -20,8 +23,15 @@ export default function ProductDetail({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [quantity, setQuantity] = useState(1);
+  const [mainImgSrc, setMainImgSrc] = useState("");
+  const [selectedThumb, setSelectedThumb] = useState(0);
   
   const { addToCart } = useCart();
+
+  // Scroll to top on mount
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [productId]);
 
   useEffect(() => {
     async function fetchProduct() {
@@ -33,6 +43,7 @@ export default function ProductDetail({
         }
         const data = await res.json();
         setProduct(data);
+        setMainImgSrc(data.imageUrl);
       } catch (err: any) {
         setError(err.message);
       } finally {
@@ -44,8 +55,47 @@ export default function ProductDetail({
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center py-40">
-        <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-[#FF9900]"></div>
+      <div className="bg-white min-h-screen">
+        <div className="max-w-[1500px] mx-auto p-4 sm:p-8">
+          {/* Skeleton Back Link */}
+          <div className="h-4 w-32 bg-gray-200 rounded animate-pulse mb-6" />
+
+          <div className="flex flex-col md:flex-row gap-8 lg:gap-12">
+            {/* Skeleton Image Panel */}
+            <div className="md:w-1/2 lg:w-2/5">
+              <div className="flex gap-3">
+                <div className="flex flex-col gap-2">
+                  {[...Array(4)].map((_, i) => (
+                    <div key={i} className="w-14 h-14 bg-gray-200 rounded animate-pulse" />
+                  ))}
+                </div>
+                <div className="flex-1 aspect-square bg-gray-200 rounded animate-pulse" />
+              </div>
+            </div>
+
+            {/* Skeleton Info Panel */}
+            <div className="md:w-1/2 lg:w-3/5 flex flex-col lg:flex-row gap-8">
+              <div className="flex-1 space-y-4">
+                <div className="h-8 bg-gray-200 rounded animate-pulse w-3/4" />
+                <div className="h-4 bg-gray-200 rounded animate-pulse w-1/4" />
+                <div className="h-5 bg-gray-200 rounded animate-pulse w-1/3" />
+                <div className="h-10 bg-gray-200 rounded animate-pulse w-1/2" />
+                <div className="h-4 bg-gray-200 rounded animate-pulse w-full" />
+                <div className="h-4 bg-gray-200 rounded animate-pulse w-5/6" />
+              </div>
+              {/* Skeleton Buy Box */}
+              <div className="lg:w-1/3 xl:w-[300px]">
+                <div className="border border-gray-200 rounded p-4 space-y-3">
+                  <div className="h-8 bg-gray-200 rounded animate-pulse w-1/2" />
+                  <div className="h-4 bg-gray-200 rounded animate-pulse w-2/3" />
+                  <div className="h-6 bg-gray-200 rounded animate-pulse w-1/3" />
+                  <div className="h-10 bg-gray-200 rounded-full animate-pulse w-full" />
+                  <div className="h-10 bg-gray-200 rounded-full animate-pulse w-full" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
@@ -63,6 +113,14 @@ export default function ProductDetail({
     );
   }
 
+  // Generate thumbnail variants from the main image URL
+  const thumbnails = [
+    mainImgSrc,
+    product.imageUrl.replace('SL1500', 'SL800') || product.imageUrl,
+    product.imageUrl.replace('SL1500', 'SL400') || product.imageUrl,
+    product.imageUrl,
+  ];
+
   const handleAddToCart = () => {
     addToCart(product, quantity);
   };
@@ -72,6 +130,10 @@ export default function ProductDetail({
     router.push("/cart");
   };
 
+  // Fake MRP for strikethrough (30% higher)
+  const mrp = product.price * 1.3;
+  const discountPercent = Math.round(((mrp - product.price) / mrp) * 100);
+
   return (
     <div className="bg-white min-h-screen">
       <div className="max-w-[1500px] mx-auto p-4 sm:p-8">
@@ -80,16 +142,39 @@ export default function ProductDetail({
         </Link>
 
         <div className="flex flex-col md:flex-row gap-8 lg:gap-12">
-          {/* Left: Image Panel */}
-          <div className="md:w-1/2 lg:w-2/5 flex justify-center sticky top-4 self-start">
-            <div className="relative w-full max-w-md h-[400px] sm:h-[500px]">
-              <Image 
-                src={product.imageUrl}
-                alt={product.title}
-                fill
-                className="object-contain"
-                priority
-              />
+          {/* Left: Image Panel with Thumbnails */}
+          <div className="md:w-1/2 lg:w-2/5 sticky top-4 self-start">
+            <div className="flex gap-3">
+              {/* Thumbnail Strip */}
+              <div className="flex flex-col gap-2">
+                {thumbnails.map((thumb, i) => (
+                  <button
+                    key={i}
+                    onClick={() => { setSelectedThumb(i); setMainImgSrc(thumb); }}
+                    className={`w-14 h-14 border-2 rounded overflow-hidden relative ${selectedThumb === i ? 'border-[#C45500]' : 'border-gray-200 hover:border-[#C45500]'}`}
+                  >
+                    <Image
+                      src={thumb}
+                      alt={`${product.title} view ${i + 1}`}
+                      fill
+                      className="object-contain p-1"
+                      sizes="56px"
+                      onError={(e) => { (e.target as HTMLImageElement).src = FALLBACK_IMAGE; }}
+                    />
+                  </button>
+                ))}
+              </div>
+              {/* Main Image */}
+              <div className="flex-1 relative aspect-square">
+                <Image 
+                  src={mainImgSrc}
+                  alt={product.title}
+                  fill
+                  className="object-contain"
+                  priority
+                  onError={() => setMainImgSrc(FALLBACK_IMAGE)}
+                />
+              </div>
             </div>
           </div>
 
@@ -116,12 +201,12 @@ export default function ProductDetail({
               </div>
 
               <div className="py-4 border-b">
-                <div className="flex items-baseline text-3xl font-medium">
-                  <span className="text-sm align-top self-start mt-1">$</span>
-                  {Math.floor(product.price)}
-                  <span className="text-sm align-top self-start mt-1">
-                    {((product.price % 1) * 100).toFixed(0).padStart(2, '0')}
-                  </span>
+                <div className="flex items-center gap-3 mb-1">
+                  <span className="text-red-600 text-sm font-medium">-{discountPercent}%</span>
+                  <span className="text-3xl font-medium">{formatINR(product.price)}</span>
+                </div>
+                <div className="text-sm text-gray-500">
+                  M.R.P.: <span className="line-through">{formatINR(mrp)}</span>
                 </div>
                 <div className="text-sm text-gray-500 mt-1">
                   <span className="text-[#007185] hover:text-[#C7511F] hover:underline cursor-pointer">FREE Returns</span>
@@ -139,12 +224,11 @@ export default function ProductDetail({
             {/* Right Side: Buy Box (lg screen) */}
             <div className="lg:w-1/3 xl:w-[300px]">
               <div className="border border-gray-300 rounded p-4 shadow-sm sticky top-4">
-                <div className="text-2xl font-medium mb-3">
-                  <span className="text-sm align-top">$</span>
-                  {Math.floor(product.price)}
-                  <span className="text-sm align-top">
-                    {((product.price % 1) * 100).toFixed(0).padStart(2, '0')}
-                  </span>
+                <div className="text-2xl font-medium mb-1">
+                  {formatINR(product.price)}
+                </div>
+                <div className="text-sm text-gray-500 mb-3">
+                  M.R.P.: <span className="line-through">{formatINR(mrp)}</span>
                 </div>
                 <div className="text-[#007185] hover:text-[#C7511F] text-sm hover:underline mb-4 cursor-pointer">
                   FREE Returns

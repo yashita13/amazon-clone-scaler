@@ -49,7 +49,7 @@ export default function Navbar() {
         {/* Logo */}
         <Link href="/" className="flex items-center pt-2 border border-transparent hover:border-white p-1 rounded-sm">
           <Image
-            src="https://upload.wikimedia.org/wikipedia/commons/a/a9/Amazon_logo.svg"
+            src="/amazon-logo.png"
             alt="Amazon"
             width={100}
             height={30}
@@ -71,7 +71,7 @@ export default function Navbar() {
           <input
             type="text"
             placeholder="Search Amazon"
-            className="flex-1 px-4 py-2 text-black outline-none"
+            className="flex-1 px-4 py-2 text-black bg-white outline-none"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
@@ -114,7 +114,7 @@ export default function Navbar() {
           <input
             type="text"
             placeholder="Search Amazon"
-            className="flex-1 px-4 py-2 rounded-l-md text-black outline-none"
+            className="flex-1 px-4 py-2 rounded-l-md text-black bg-white outline-none"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />

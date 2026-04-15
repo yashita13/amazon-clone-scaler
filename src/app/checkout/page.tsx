@@ -4,6 +4,7 @@ import { useCart } from "@/context/CartContext";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { formatINR } from "@/lib/formatPrice";
 
 export default function Checkout() {
   const { cartItems, cartTotal, clearCart } = useCart();
@@ -169,25 +170,25 @@ export default function Checkout() {
               <div className="space-y-1 text-sm mb-4 border-b pb-4">
                  <div className="flex justify-between">
                    <span>Items:</span>
-                   <span>${cartTotal.toFixed(2)}</span>
+                   <span>{formatINR(cartTotal)}</span>
                  </div>
                  <div className="flex justify-between">
                    <span>Shipping & handling:</span>
-                   <span>$0.00</span>
+                   <span>₹0.00</span>
                  </div>
                  <div className="flex justify-between">
                    <span>Total before tax:</span>
-                   <span>${cartTotal.toFixed(2)}</span>
+                   <span>{formatINR(cartTotal)}</span>
                  </div>
                  <div className="flex justify-between">
                    <span>Estimated tax to be collected:</span>
-                   <span>${estimatedTax.toFixed(2)}</span>
+                   <span>{formatINR(estimatedTax)}</span>
                  </div>
               </div>
 
               <div className="flex justify-between font-bold text-[#b12704] text-xl">
                  <span>Order total:</span>
-                 <span>${orderTotal.toFixed(2)}</span>
+                 <span>{formatINR(orderTotal)}</span>
               </div>
            </div>
         </div>

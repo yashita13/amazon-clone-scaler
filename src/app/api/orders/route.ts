@@ -1,10 +1,11 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { sendOrderConfirmation } from "@/lib/notifications";
 
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { items, total } = body;
+    const { items, total, email, mobile } = body;
 
     if (!items || !Array.isArray(items) || items.length === 0) {
       return NextResponse.json({ error: "Invalid request: items array is empty or missing" }, { status: 400 });
@@ -29,6 +30,13 @@ export async function POST(request: Request) {
         },
       },
     });
+
+    // Send order confirmation notification (non-blocking)
+    if (email) {
+      sendOrderConfirmation(email, order.id, mobile).catch((err) =>
+        console.error("Failed to send order confirmation:", err)
+      );
+    }
 
     return NextResponse.json({ orderId: order.id, status: order.status }, { status: 201 });
   } catch (error) {

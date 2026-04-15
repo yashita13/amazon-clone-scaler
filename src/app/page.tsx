@@ -3,6 +3,7 @@
 import { useEffect, useState, use } from "react";
 import { Product } from "@prisma/client";
 import ProductCard from "@/components/product/ProductCard";
+import ProductCardSkeleton from "@/components/product/ProductCardSkeleton";
 import Image from "next/image";
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/solid";
 
@@ -13,7 +14,7 @@ const CAROUSEL_IMAGES = [
   "/a2.png",
   "/a3.jpg",
   "/a4.jpg",
-  "/a5.jpg"
+  "/a5.jpg",
 ];
 
 export default function Home({
@@ -123,10 +124,12 @@ export default function Home({
         </div>
       </div>
 
-      <div className="relative z-10 px-4 mt-[-155px] md:mt-[-285px] max-w-[1500px] mx-auto">
+      <div className="relative z-10 px-4 mt-[-150px] md:mt-[-320px] max-w-[1500px] mx-auto">
         {loading ? (
-          <div className="flex justify-center items-center py-20">
-            <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-amazon-orange"></div>
+          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 lg:gap-8">
+            {[...Array(8)].map((_, i) => (
+              <ProductCardSkeleton key={i} />
+            ))}
           </div>
         ) : error ? (
           <div className="bg-red-100 text-red-700 p-4 border border-red-400 rounded mt-20">
@@ -138,7 +141,7 @@ export default function Home({
           </div>
         ) : (
           <>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 lg:gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 lg:gap-8">
               {products.map((product) => (
                 <ProductCard key={product.id} product={product} />
               ))}
