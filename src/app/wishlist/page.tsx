@@ -49,7 +49,19 @@ export default function WishlistPage() {
                     <Link href={`/product/${product.id}`} className="text-[#007185] hover:text-[#C7511F] hover:underline font-medium line-clamp-2 text-sm mb-2">
                       {product.title}
                     </Link>
-                    <div className="text-lg font-bold mb-4">{formatINR(product.price)}</div>
+                    <div className="flex flex-col mb-4">
+                      <div className="flex items-baseline gap-2">
+                        <span className="text-lg font-bold">{formatINR(product.price)}</span>
+                        {product.oldPrice && (
+                          <span className="text-gray-500 text-xs line-through">
+                            M.R.P: {formatINR(product.oldPrice)}
+                          </span>
+                        )}
+                      </div>
+                      {product.isLimitedTimeDeal && (
+                        <span className="text-[#B12704] text-[10px] font-bold">Limited time deal</span>
+                      )}
+                    </div>
                   </div>
 
                   <div className="flex flex-col gap-2 mt-auto">

@@ -76,7 +76,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     try {
-      const saved = localStorage.getItem("amazon-clone-cart");
+      const saved = localStorage.getItem("amazon-yashita-cart");
       if (saved) {
         dispatch({ type: "LOAD_CART", payload: JSON.parse(saved) });
       }
@@ -86,7 +86,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   useEffect(() => {
-    localStorage.setItem("amazon-clone-cart", JSON.stringify(state.items));
+    localStorage.setItem("amazon-yashita-cart", JSON.stringify(state.items));
   }, [state.items]);
 
   const addToCart = (product: Product, quantity: number) => {

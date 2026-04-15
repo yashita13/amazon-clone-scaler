@@ -54,14 +54,14 @@ export async function sendOTP(
 ): Promise<void> {
   await sendEmail({
     to: email,
-    subject: "Your Amazon Clone Verification Code",
+    subject: "Your Amazon - Yashita Verification Code",
     body: `Your one-time verification code is: ${otp}. It expires in 10 minutes.`,
   });
 
   if (mobile) {
     await sendSMS({
       to: mobile,
-      message: `Your Amazon Clone OTP is ${otp}. Valid for 10 minutes.`,
+      message: `Your Amazon - Yashita OTP is ${otp}. Valid for 10 minutes.`,
     });
   }
 }
@@ -76,7 +76,7 @@ export async function sendOrderConfirmation(
 ): Promise<void> {
   await sendEmail({
     to: email,
-    subject: "Order Confirmed — Amazon Clone",
+    subject: "Order Confirmed — Amazon - Yashita",
     body: `Thank you for ordering! Your order has been placed successfully.\nOrder ID: ${orderId}`,
   });
 

@@ -6,12 +6,16 @@ import { CartProvider } from "@/context/CartContext";
 import { AuthProvider } from "@/context/AuthContext";
 import { WishlistProvider } from "@/context/WishlistContext";
 import Navbar from "@/components/layout/Navbar";
+import Footer from "@/components/layout/Footer";
 
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Amazon Clone",
-  description: "A full-stack Amazon Clone built with Next.js",
+  title: "Amazon - Yashita",
+  description: "A full-stack Amazon storefront experience by Yashita.",
+  icons: {
+    icon: "https://www.amazon.com/favicon.ico",
+  },
 };
 
 export default function RootLayout({
@@ -31,6 +35,7 @@ export default function RootLayout({
             <main className="min-h-screen">
                 {children}
               </main>
+              <Footer />
             </CartProvider>
           </WishlistProvider>
         </AuthProvider>

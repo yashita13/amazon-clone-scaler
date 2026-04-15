@@ -103,6 +103,14 @@ export default function Cart() {
                      <p className="text-xl font-bold">
                        {formatINR(item.product.price)}
                      </p>
+                     {item.product.oldPrice && (
+                       <p className="text-gray-500 text-xs line-through whitespace-nowrap">
+                         M.R.P: {formatINR(item.product.oldPrice)}
+                       </p>
+                     )}
+                     {item.product.isLimitedTimeDeal && (
+                       <p className="text-[#B12704] text-[11px] font-bold mt-1">Limited time deal</p>
+                     )}
                   </div>
                 </div>
               </div>

@@ -10,7 +10,7 @@ import { useRouter } from "next/navigation";
 import { formatINR } from "@/lib/formatPrice";
 import { Heart } from "lucide-react";
 
-const FALLBACK_IMAGE = "https://picsum.photos/800/800";
+
 
 export default function ProductDetail({
   params
@@ -119,12 +119,12 @@ export default function ProductDetail({
   }
 
   // Generate thumbnail variants from the main image URL
-  const thumbnails = [
-    mainImgSrc,
-    product.imageUrl.replace('SL1500', 'SL800') || product.imageUrl,
-    product.imageUrl.replace('SL1500', 'SL400') || product.imageUrl,
+  const thumbnails = product ? [
     product.imageUrl,
-  ];
+    product.imageUrl,
+    product.imageUrl,
+    product.imageUrl,
+  ] : [];
 
   const handleAddToCart = () => {
     addToCart(product, quantity);
@@ -135,9 +135,7 @@ export default function ProductDetail({
     router.push("/cart");
   };
 
-  // Fake MRP for strikethrough (30% higher)
-  const mrp = product.price * 1.3;
-  const discountPercent = Math.round(((mrp - product.price) / mrp) * 100);
+
 
   return (
     <div className="bg-white min-h-screen">
@@ -164,7 +162,6 @@ export default function ProductDetail({
                       fill
                       className="object-contain p-1"
                       sizes="56px"
-                      onError={(e) => { (e.target as HTMLImageElement).src = FALLBACK_IMAGE; }}
                     />
                   </button>
                 ))}
@@ -172,12 +169,11 @@ export default function ProductDetail({
               {/* Main Image */}
               <div className="flex-1 relative aspect-square">
                 <Image
-                  src={mainImgSrc}
+                  src={mainImgSrc || product.imageUrl}
                   alt={product.title}
                   fill
                   className="object-contain"
                   priority
-                  onError={() => setMainImgSrc(FALLBACK_IMAGE)}
                 />
               </div>
             </div>
@@ -206,15 +202,36 @@ export default function ProductDetail({
               </div>
 
               <div className="py-4 border-b">
-                <div className="flex items-center gap-3 mb-1">
-                  <span className="text-red-600 text-sm font-medium">-{discountPercent}%</span>
+                {product.isLimitedTimeDeal && (
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="bg-[#B12704] text-white px-2 py-1 text-sm font-bold rounded-sm">
+                      Limited time deal
+                    </span>
+                  </div>
+                )}
+                <div className="flex items-baseline gap-3 mb-1">
+                  {product.discountPercentage && (
+                    <span className="text-red-600 text-3xl font-light">-{product.discountPercentage}%</span>
+                  )}
                   <span className="text-3xl font-medium">{formatINR(product.price)}</span>
                 </div>
-                <div className="text-sm text-gray-500">
-                  M.R.P.: <span className="line-through">{formatINR(mrp)}</span>
-                </div>
+                {product.oldPrice && (
+                  <div className="text-sm text-gray-500">
+                    M.R.P.: <span className="line-through">{formatINR(product.oldPrice)}</span>
+                  </div>
+                )}
                 <div className="text-sm text-gray-500 mt-1">
                   <span className="text-[#007185] hover:text-[#C7511F] hover:underline cursor-pointer">FREE Returns</span>
+                </div>
+                <div className="mt-4 flex flex-col gap-2">
+                  <p className="text-[#565959] text-sm">
+                    {Math.floor(product.rating * 1.5)}K+ bought in past month
+                  </p>
+                  <div className="p-3 bg-white border border-gray-300 rounded-lg flex flex-col gap-1">
+                    <span className="text-xs font-bold text-gray-700 uppercase">Bank Offer</span>
+                    <p className="text-sm text-gray-800">Upto ₹1,500.00 discount on select Credit Cards</p>
+                    <span className="text-[#007185] text-xs hover:underline cursor-pointer">11 offers ></span>
+                  </div>
                 </div>
               </div>
 
@@ -232,9 +249,11 @@ export default function ProductDetail({
                 <div className="text-2xl font-medium mb-1">
                   {formatINR(product.price)}
                 </div>
-                <div className="text-sm text-gray-500 mb-3">
-                  M.R.P.: <span className="line-through">{formatINR(mrp)}</span>
-                </div>
+                {product.oldPrice && (
+                  <div className="text-sm text-gray-500 mb-2">
+                    M.R.P.: <span className="line-through">{formatINR(product.oldPrice)}</span>
+                  </div>
+                )}
                 <div className="text-[#007185] hover:text-[#C7511F] text-sm hover:underline mb-4 cursor-pointer">
                   FREE Returns
                 </div>

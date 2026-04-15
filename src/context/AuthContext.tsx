@@ -27,7 +27,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     try {
-      const storedUser = localStorage.getItem("amazon-clone-auth");
+      const storedUser = localStorage.getItem("amazon-yashita-auth");
       if (storedUser) {
         setUser(JSON.parse(storedUser));
       } else {
@@ -38,7 +38,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           name: "Eva Edisson"
         };
         setUser(demoUser);
-        localStorage.setItem("amazon-clone-auth", JSON.stringify(demoUser));
+        localStorage.setItem("amazon-yashita-auth", JSON.stringify(demoUser));
       }
     } catch (error) {
       console.error("Failed to parse auth from localStorage", error);
@@ -49,12 +49,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signInUser = (userData: User) => {
     setUser(userData);
-    localStorage.setItem("amazon-clone-auth", JSON.stringify(userData));
+    localStorage.setItem("amazon-yashita-auth", JSON.stringify(userData));
   };
 
   const signOutUser = () => {
     setUser(null);
-    localStorage.removeItem("amazon-clone-auth");
+    localStorage.removeItem("amazon-yashita-auth");
   };
 
   return (

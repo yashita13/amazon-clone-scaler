@@ -17,7 +17,7 @@ export function WishlistProvider({ children }: { children: React.ReactNode }) {
   const [wishlistItems, setWishlistItems] = useState<Product[]>([]);
 
   useEffect(() => {
-    const saved = localStorage.getItem("amazon-clone-wishlist");
+    const saved = localStorage.getItem("amazon-yashita-wishlist");
     if (saved) {
       try {
         setWishlistItems(JSON.parse(saved));
@@ -28,7 +28,7 @@ export function WishlistProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   useEffect(() => {
-    localStorage.setItem("amazon-clone-wishlist", JSON.stringify(wishlistItems));
+    localStorage.setItem("amazon-yashita-wishlist", JSON.stringify(wishlistItems));
   }, [wishlistItems]);
 
   const addToWishlist = (product: Product) => {

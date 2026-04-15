@@ -17,6 +17,10 @@ model Product {
   category    String
   rating      Float       @default(0)
   stock       Int         @default(100)
+  isBestSeller Boolean     @default(false)
+  oldPrice    Float?      
+  discountPercentage Int?
+  isLimitedTimeDeal Boolean @default(false)
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
   orderItems  OrderItem[]

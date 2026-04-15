@@ -13,17 +13,6 @@ export async function GET(request: Request) {
 
     const where: any = {};
     
-    // Mapping human-readable category names to DB values
-    const CATEGORY_MAP: Record<string, string> = {
-      "Electronics": "electronics",
-      "Jewellery": "jewelery",
-      "Men's Clothing": "men's clothing",
-      "Women's Clothing": "women's clothing",
-      "Office Products": "Office Products"
-    };
-
-    const categoryInDb = CATEGORY_MAP[category] || category;
-
     if (search) {
       where.OR = [
         { title: { contains: search, mode: "insensitive" } },
@@ -33,7 +22,7 @@ export async function GET(request: Request) {
     }
     
     if (category && category !== "All" && category !== "All Categories") {
-      where.category = categoryInDb;
+      where.category = { equals: category, mode: "insensitive" };
     }
 
     const [products, total] = await Promise.all([
