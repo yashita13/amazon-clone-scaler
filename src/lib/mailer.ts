@@ -39,7 +39,12 @@ export async function sendOrderEmail(
     // Build the rich HTML mimicking the screenshots using raw database rows
     const itemsHtml = fullOrder.items.map(orderItem => `
       <div style="display: flex; margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 15px;">
-        <img src="${orderItem.product.imageUrl}" alt="Product" style="width: 80px; height: 80px; object-fit: contain; margin-right: 20px;" />
+        <img 
+  src="https://upload.wikimedia.org/wikipedia/commons/4/4a/Amazon_icon.svg"
+  alt="Amazon"
+  width="50"
+  style="margin-right: 20px;"
+/>
         <div>
           <p style="margin: 0 0 5px 0; color: #007185; font-size: 14px; font-weight: bold;">${orderItem.product.title}</p>
           <p style="margin: 0 0 5px 0; color: #555; font-size: 13px;">Quantity: ${orderItem.quantity}</p>

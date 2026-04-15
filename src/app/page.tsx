@@ -12,12 +12,12 @@ import CategoryGridCard from "@/components/home/CategoryGridCard";
 import { useAuth } from "@/context/AuthContext";
 import Link from "next/link";
 
-const CAROUSEL_IMAGES = [
-  "/a1.jpg",
-  "/a2.png",
-  "/a3.jpg",
-  "/a4.jpg",
-  "/a5.jpg",
+const CAROUSEL_ITEMS = [
+  { image: "/a1.jpg", link: "/?category=Women%27s%20Clothing" },
+  { image: "/a2.png", link: "/?category=Beauty" },
+  { image: "/a3.jpg", link: "/?category=Men%27s+Clothing" },
+  { image: "/a4.jpg", link: "/?category=jewelery" },
+  { image: "/a5.jpg", link: "/?category=Electronics" },
 ];
 
 export default function Home({
@@ -55,11 +55,13 @@ export default function Home({
   const resultsRef = useRef<HTMLDivElement>(null);
 
   const nextSlide = () => {
-    setCurrentImageIndex((prev) => (prev + 1) % CAROUSEL_IMAGES.length);
+    setCurrentImageIndex((prev) => (prev + 1) % CAROUSEL_ITEMS.length);
   };
 
   const prevSlide = () => {
-    setCurrentImageIndex((prev) => (prev === 0 ? CAROUSEL_IMAGES.length - 1 : prev - 1));
+    setCurrentImageIndex((prev) =>
+      prev === 0 ? CAROUSEL_ITEMS.length - 1 : prev - 1
+    );
   };
 
   useEffect(() => {
@@ -150,7 +152,7 @@ export default function Home({
 
   // Fetch data for category grids & personalized cards
   useEffect(() => {
-    const categoriesToFetch = ["Electronics", "Men's Clothing", "Women's Clothing"];
+    const categoriesToFetch = ["Electronics", "Jewelery", "Women's Clothing"];
 
     async function fetchGrids() {
       try {
@@ -213,13 +215,19 @@ export default function Home({
               transition={{ duration: 1 }}
               className="absolute inset-0"
             >
-              <Image
-                src={CAROUSEL_IMAGES[currentImageIndex]}
-                alt="Banner Carousel"
-                fill
-                className="object-cover"
-                priority
-              />
+              <Link
+                href={CAROUSEL_ITEMS[currentImageIndex].link}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <Image
+                  src={CAROUSEL_ITEMS[currentImageIndex].image}
+                  alt="Banner Carousel"
+                  fill
+                  className="object-cover cursor-pointer"
+                  priority
+                />
+              </Link>
             </motion.div>
           </AnimatePresence>
           <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-[#EAEDED] to-transparent z-10 pointer-events-none" />

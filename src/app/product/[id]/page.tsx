@@ -258,8 +258,8 @@ export default function ProductDetail({
                   FREE Returns
                 </div>
                 <div className="text-sm mb-4">
-                  <span className="text-[#007185] hover:text-[#C7511F] hover:underline cursor-pointer">FREE delivery</span>
-                  <span className="font-bold"> Wednesday, Dec 20</span>. Order within <span className="text-green-700">22 hrs 14 mins</span>
+                  <span className="text-[#007185] hover:text-[#C7511F] hover:underline cursor-pointer">FREE delivery</span><br />
+                  Fastest delivery <span className="font-bold">Tomorrow</span>. Order within <span className="text-green-700">22 hrs 14 mins</span>
                 </div>
 
                 <h4 className="text-green-700 text-xl mb-4 font-medium">
