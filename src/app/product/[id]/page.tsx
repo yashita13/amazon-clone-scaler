@@ -230,7 +230,7 @@ export default function ProductDetail({
                   <div className="p-3 bg-white border border-gray-300 rounded-lg flex flex-col gap-1">
                     <span className="text-xs font-bold text-gray-700 uppercase">Bank Offer</span>
                     <p className="text-sm text-gray-800">Upto ₹1,500.00 discount on select Credit Cards</p>
-                    <span className="text-[#007185] text-xs hover:underline cursor-pointer">11 offers ></span>
+                    <span className="text-[#007185] text-xs hover:underline cursor-pointer">11 offers </span>
                   </div>
                 </div>
               </div>

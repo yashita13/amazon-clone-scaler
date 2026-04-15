@@ -26,14 +26,22 @@ export default function Home({
   const pageParam = typeof unwrappedParams.page === "string" ? unwrappedParams.page : "1";
   const searchParam = typeof unwrappedParams.search === "string" ? unwrappedParams.search : "";
   const categoryParam = typeof unwrappedParams.category === "string" ? unwrappedParams.category : "";
+  const sortParam = typeof unwrappedParams.sort === "string" ? unwrappedParams.sort : "newest";
+  const bestSellerParam = unwrappedParams.isBestSeller === "true";
+  const dealParam = unwrappedParams.isLimitedTimeDeal === "true";
 
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [totalProducts, setTotalProducts] = useState(0);
 
   const [currentPage, setCurrentPage] = useState(parseInt(pageParam));
   const [totalPages, setTotalPages] = useState(1);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+  const [sortBy, setSortBy] = useState(sortParam);
+  const [bestSellerOnly, setBestSellerOnly] = useState(bestSellerParam);
+  const [dealsOnly, setDealsOnly] = useState(dealParam);
 
   const nextSlide = () => {
     setCurrentImageIndex((prev) => (prev + 1) % CAROUSEL_IMAGES.length);
@@ -50,41 +58,82 @@ export default function Home({
     return () => clearInterval(timer);
   }, []);
 
-  useEffect(() => {
-    async function fetchProducts() {
-      try {
-        setLoading(true);
-        const query = new URLSearchParams();
-        query.set("page", currentPage.toString());
-        if (searchParam) query.set("search", searchParam);
-        if (categoryParam && categoryParam !== "All Categories") query.set("category", categoryParam);
+  const buildQueryUrl = (params: any) => {
+    const q = new URLSearchParams();
+    if (params.page) q.set("page", params.page.toString());
+    if (params.search) q.set("search", params.search);
+    if (params.category && params.category !== "All Categories") q.set("category", params.category);
+    if (params.sort && params.sort !== "newest") q.set("sort", params.sort);
+    if (params.bestSeller) q.set("isBestSeller", "true");
+    if (params.deals) q.set("isLimitedTimeDeal", "true");
+    return "?" + q.toString();
+  };
 
-        const res = await fetch(`/api/products?${query.toString()}`);
-        if (!res.ok) throw new Error("Failed to fetch products");
+  const fetchProducts = async () => {
+    try {
+      setLoading(true);
+      const query = new URLSearchParams();
+      query.set("page", currentPage.toString());
+      if (searchParam) query.set("search", searchParam);
+      if (categoryParam && categoryParam !== "All Categories") query.set("category", categoryParam);
+      if (sortBy !== "newest") query.set("sort", sortBy);
+      if (bestSellerOnly) query.set("isBestSeller", "true");
+      if (dealsOnly) query.set("isLimitedTimeDeal", "true");
 
-        const data = await res.json();
-        setProducts(data.products || []);
-        setTotalPages(data.totalPages || 1);
-        setError(null);
-      } catch (err: any) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
+      const res = await fetch(`/api/products?${query.toString()}`);
+      if (!res.ok) throw new Error("Failed to fetch products");
+
+      const data = await res.json();
+      setProducts(data.products || []);
+      setTotalPages(data.totalPages || 1);
+      setTotalProducts(data.total || 0);
+      setError(null);
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
     }
+  };
 
+  useEffect(() => {
     fetchProducts();
-  }, [currentPage, searchParam, categoryParam]);
+  }, [currentPage, searchParam, categoryParam, sortBy, bestSellerOnly, dealsOnly]);
 
   // Sync state if URL changes directly
   useEffect(() => {
     setCurrentPage(parseInt(pageParam));
-  }, [pageParam]);
+    setSortBy(sortParam);
+    setBestSellerOnly(bestSellerParam);
+    setDealsOnly(dealParam);
+  }, [pageParam, sortParam, bestSellerParam, dealParam]);
+
+  const handleSortChange = (newSort: string) => {
+    setSortBy(newSort);
+    const newUrl = buildQueryUrl({ page: 1, search: searchParam, category: categoryParam, sort: newSort, bestSeller: bestSellerOnly, deals: dealsOnly });
+    window.history.pushState(null, '', newUrl);
+    setCurrentPage(1);
+  };
+
+  const toggleBestSeller = () => {
+    const newValue = !bestSellerOnly;
+    setBestSellerOnly(newValue);
+    const newUrl = buildQueryUrl({ page: 1, search: searchParam, category: categoryParam, sort: sortBy, bestSeller: newValue, deals: dealsOnly });
+    window.history.pushState(null, '', newUrl);
+    setCurrentPage(1);
+  };
+
+  const toggleDeals = () => {
+    const newValue = !dealsOnly;
+    setDealsOnly(newValue);
+    const newUrl = buildQueryUrl({ page: 1, search: searchParam, category: categoryParam, sort: sortBy, bestSeller: bestSellerOnly, deals: newValue });
+    window.history.pushState(null, '', newUrl);
+    setCurrentPage(1);
+  };
 
   return (
     <div className="max-w-[1500px] mx-auto bg-[#EAEDED]">
       <div className="relative w-full overflow-hidden group" style={{ WebkitMaskImage: "linear-gradient(to bottom, black 50%, transparent 100%)", maskImage: "linear-gradient(to bottom, black 50%, transparent 100%)" }}>
-        <div className="w-full h-[300px] sm:h-[400px] md:h-[600px] relative">
+        <div className="w-full h-[250px] sm:h-[400px] md:h-[600px] relative">
           <AnimatePresence>
             <motion.div
               key={currentImageIndex}
@@ -124,63 +173,153 @@ export default function Home({
         </div>
       </div>
 
-      <div className="relative z-10 px-4 mt-[-150px] md:mt-[-320px] max-w-[1500px] mx-auto">
-        {loading ? (
-          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 lg:gap-8">
-            {[...Array(8)].map((_, i) => (
-              <ProductCardSkeleton key={i} />
-            ))}
+      {/* Results Header Bar */}
+      <div className="relative z-20 bg-white border-b border-gray-200 py-3 px-4 flex flex-col sm:flex-row justify-between items-center gap-4 shadow-sm">
+        <div className="text-[14px] text-gray-700">
+          <span className="font-medium">1-{products.length}</span> of over <span className="font-medium">{totalProducts}</span> results 
+          {searchParam && <span> for <span className="text-[#C45500] font-bold">"{searchParam}"</span></span>}
+          {categoryParam && categoryParam !== "All Categories" && <span> in <span className="font-bold underline">{categoryParam}</span></span>}
+        </div>
+        
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-medium text-gray-500 uppercase">Sort by:</span>
+            <select 
+              value={sortBy}
+              onChange={(e) => handleSortChange(e.target.value)}
+              className="bg-gray-100 border border-gray-300 rounded-md text-sm py-1 px-2 outline-none focus:ring-1 focus:ring-[#e77600] cursor-pointer"
+            >
+              <option value="newest">Newest Arrivals</option>
+              <option value="price_asc">Price: Low to High</option>
+              <option value="price_desc">Price: High to Low</option>
+              <option value="rating_desc">Avg. Customer Review</option>
+            </select>
           </div>
-        ) : error ? (
-          <div className="bg-red-100 text-red-700 p-4 border border-red-400 rounded mt-20">
-            {error}
-          </div>
-        ) : products.length === 0 ? (
-          <div className="bg-white p-8 text-center text-xl font-medium rounded mt-20">
-            {searchParam || categoryParam ? "No products found for your search/filter." : "No products available."}
-          </div>
-        ) : (
-          <>
-            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 lg:gap-8">
-              {products.map((product, index) => (
-                <ProductCard key={product.id} product={product} priority={index < 4} />
-              ))}
+        </div>
+      </div>
+
+      <div className="flex flex-col md:flex-row gap-6 px-4 pb-12 mt-4">
+        
+        {/* Sidebar Filters */}
+        <aside className="hidden md:block w-[240px] flex-shrink-0 space-y-6">
+          <div className="bg-white p-4 rounded shadow-sm border border-gray-200">
+            <h3 className="font-bold text-sm mb-3 uppercase tracking-wider text-gray-500">Refine by</h3>
+            
+            <div className="space-y-3">
+              <label className="flex items-center gap-2 cursor-pointer group">
+                <input 
+                  type="checkbox" 
+                  checked={bestSellerOnly}
+                  onChange={toggleBestSeller}
+                  className="w-4 h-4 rounded border-gray-300 text-[#e77600] focus:ring-[#e77600]"
+                />
+                <span className={`text-sm ${bestSellerOnly ? 'font-bold text-black' : 'text-gray-700 group-hover:text-[#C45500]'}`}>Best Sellers</span>
+              </label>
+
+              <label className="flex items-center gap-2 cursor-pointer group">
+                <input 
+                  type="checkbox" 
+                  checked={dealsOnly}
+                  onChange={toggleDeals}
+                  className="w-4 h-4 rounded border-gray-300 text-[#e77600] focus:ring-[#e77600]"
+                />
+                <span className={`text-sm ${dealsOnly ? 'font-bold text-black' : 'text-gray-700 group-hover:text-[#C45500]'}`}>Limited Time Deals</span>
+              </label>
             </div>
 
-            {/* Pagination Controls */}
-            {totalPages > 1 && (
-              <div className="flex justify-center mt-8 mb-12 space-x-2">
-                <button
-                  onClick={() => {
-                    const newPage = Math.max(1, currentPage - 1);
-                    setCurrentPage(newPage);
-                    window.history.pushState(null, '', `?page=${newPage}${searchParam ? `&search=${searchParam}` : ''}${categoryParam ? `&category=${categoryParam}` : ''}`);
-                  }}
-                  disabled={currentPage === 1}
-                  className="px-4 py-2 border border-gray-300 rounded bg-white hover:bg-gray-50 flex items-center disabled:opacity-50"
-                >
-                  <ChevronLeftIcon className="h-5 w-5 mr-1" />
-                  Previous
-                </button>
-                <div className="flex items-center px-4 py-2">
-                  Page {currentPage} of {totalPages}
-                </div>
-                <button
-                  onClick={() => {
-                    const newPage = Math.min(totalPages, currentPage + 1);
-                    setCurrentPage(newPage);
-                    window.history.pushState(null, '', `?page=${newPage}${searchParam ? `&search=${searchParam}` : ''}${categoryParam ? `&category=${categoryParam}` : ''}`);
-                  }}
-                  disabled={currentPage === totalPages}
-                  className="px-4 py-2 border border-gray-300 rounded bg-white hover:bg-gray-50 flex items-center disabled:opacity-50"
-                >
-                  Next
-                  <ChevronRightIcon className="h-5 w-5 ml-1" />
-                </button>
+            <div className="mt-6 pt-6 border-t border-gray-100">
+              <h4 className="font-bold text-sm mb-3">Customer Review</h4>
+              <div className="space-y-2">
+                {[4, 3, 2, 1].map((stars) => (
+                  <button key={stars} className="flex items-center gap-2 text-sm text-gray-700 hover:text-[#C45500] w-full text-left">
+                    <span className="text-[#F3A847]">{'★'.repeat(stars)}{'☆'.repeat(5-stars)}</span>
+                    <span>& Up</span>
+                  </button>
+                ))}
               </div>
-            )}
-          </>
-        )}
+            </div>
+          </div>
+
+          <div className="bg-[#FEBD69]/10 p-4 border border-[#FEBD69]/30 rounded">
+            <p className="text-xs font-medium text-gray-800">
+              <span className="font-bold">Prime Members:</span> Enjoy FREE Delivery and early access to deals.
+            </p>
+          </div>
+        </aside>
+
+        {/* Main Product Area */}
+        <main className="flex-1">
+          {loading ? (
+            <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+              {[...Array(8)].map((_, i) => (
+                <ProductCardSkeleton key={i} />
+              ))}
+            </div>
+          ) : error ? (
+            <div className="bg-red-100 text-red-700 p-4 border border-red-400 rounded">
+              {error}
+            </div>
+          ) : products.length === 0 ? (
+            <div className="bg-white p-12 text-center rounded shadow-sm flex flex-col items-center">
+              <div className="text-gray-400 mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1} stroke="currentColor" className="w-20 h-20">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-medium mb-2">No items match your filters.</h3>
+              <p className="text-gray-500 mb-6">Try adjusting your search criteria or clearing filters.</p>
+              <button 
+                onClick={() => window.location.href = '/'}
+                className="bg-[#FFD814] hover:bg-[#F7CA00] text-black px-6 py-2 rounded-full shadow-sm text-sm font-medium"
+              >
+                Clear all filters
+              </button>
+            </div>
+          ) : (
+            <>
+              <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                {products.map((product, index) => (
+                  <ProductCard key={product.id} product={product} priority={index < 4} />
+                ))}
+              </div>
+
+              {/* Pagination Controls */}
+              {totalPages > 1 && (
+                <div className="flex justify-center mt-12 mb-6 space-x-2">
+                  <button
+                    onClick={() => {
+                      const newPage = Math.max(1, currentPage - 1);
+                      setCurrentPage(newPage);
+                      const newUrl = buildQueryUrl({ page: newPage, search: searchParam, category: categoryParam, sort: sortBy, bestSeller: bestSellerOnly, deals: dealsOnly });
+                      window.history.pushState(null, '', newUrl);
+                    }}
+                    disabled={currentPage === 1}
+                    className="px-6 py-2 border border-gray-300 rounded-lg bg-white hover:bg-gray-50 flex items-center disabled:opacity-50 shadow-sm transition-all"
+                  >
+                    <ChevronLeftIcon className="h-5 w-5 mr-1" />
+                    Previous
+                  </button>
+                  <div className="flex items-center px-6 py-2 font-medium">
+                    Page <span className="mx-1 text-[#C45500] font-bold">{currentPage}</span> of {totalPages}
+                  </div>
+                  <button
+                    onClick={() => {
+                      const newPage = Math.min(totalPages, currentPage + 1);
+                      setCurrentPage(newPage);
+                      const newUrl = buildQueryUrl({ page: newPage, search: searchParam, category: categoryParam, sort: sortBy, bestSeller: bestSellerOnly, deals: dealsOnly });
+                      window.history.pushState(null, '', newUrl);
+                    }}
+                    disabled={currentPage === totalPages}
+                    className="px-6 py-2 border border-gray-300 rounded-lg bg-white hover:bg-gray-50 flex items-center disabled:opacity-50 shadow-sm transition-all"
+                  >
+                    Next
+                    <ChevronRightIcon className="h-5 w-5 ml-1" />
+                  </button>
+                </div>
+              )}
+            </>
+          )}
+        </main>
       </div>
     </div>
   );
