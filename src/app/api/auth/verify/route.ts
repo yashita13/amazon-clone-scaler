@@ -46,20 +46,27 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "OTP has expired" }, { status: 400 });
     }
 
-    // Retrieve the user to log them in automatically
-    const user = await prisma.user.findUnique({ where: { email } });
-
     // Mark as verified by clearing the OTP records
     await prisma.oTPVerification.deleteMany({ where: { email } });
 
+    // Create the actual account now that OTP is verified
+    const user = await prisma.user.create({
+      data: {
+        email,
+        name: latestOtp.name || "Amazon Buyer",
+        password: latestOtp.password || "",
+        phone: latestOtp.phone || "",
+      }
+    });
+
     return NextResponse.json(
       {
-        message: "Email verified successfully.",
-        userId: user?.id,
-        email: user?.email,
-        name: user?.name,
+        message: "Email verified and account created successfully.",
+        userId: user.id,
+        email: user.email,
+        name: user.name,
       },
-      { status: 200 }
+      { status: 201 }
     );
   } catch (error) {
     console.error("POST /api/auth/verify error:", error);

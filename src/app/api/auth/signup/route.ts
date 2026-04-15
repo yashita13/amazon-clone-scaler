@@ -40,16 +40,6 @@ export async function POST(request: Request) {
     // Hash password using bcryptjs
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Create User (matching new schema)
-    const user = await prisma.user.create({
-      data: {
-        email,
-        password: hashedPassword,
-        name,
-        phone: mobile,
-      },
-    });
-
     // Generate 6-digit OTP
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
@@ -57,11 +47,14 @@ export async function POST(request: Request) {
     // Delete any existing OTPs for this email before creating new one
     await prisma.oTPVerification.deleteMany({ where: { email } });
 
-    // Save OTP to DB
+    // Save OTP and pending user data to DB
     await prisma.oTPVerification.create({
       data: {
         email,
         code: otp,
+        name,
+        password: hashedPassword,
+        phone: mobile,
         expiresAt,
       },
     });
@@ -71,8 +64,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json(
       {
-        message: "Account created. Please verify your email with the OTP sent.",
-        userId: user.id,
+        message: "OTP sent. Please verify your email.",
       },
       { status: 201 }
     );

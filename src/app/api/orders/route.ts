@@ -21,6 +21,9 @@ export async function POST(request: Request) {
       data: {
         total,
         status: "CONFIRMED",
+        userEmail: email || null,
+        userName: name || null,
+        address: address || null,
         items: {
           create: items.map((item: any) => ({
             productId: item.productId,

@@ -86,25 +86,27 @@ export default function Navbar() {
 
         {/* Right Links */}
         <div className="flex items-center space-x-2 sm:space-x-4 text-white text-sm">
-          {user ? (
-            <div className="hidden md:block cursor-pointer border border-transparent hover:border-white p-1 rounded-sm group relative">
-              <p>Hello, {user.name?.split(' ')[0] || user.email.split('@')[0]}</p>
-              <p className="font-bold">Account & Lists</p>
-              <div className="hidden group-hover:block absolute top-full right-0 bg-white text-black p-2 shadow-md rounded mt-1 z-50">
-                <button onClick={signOutUser} className="block w-full text-left px-4 py-2 hover:bg-gray-100 whitespace-nowrap text-sm">Sign Out</button>
+          {mounted && (
+            user ? (
+              <div className="hidden md:block cursor-pointer border border-transparent hover:border-white p-1 rounded-sm group relative">
+                <p>Hello, {user.name?.split(' ')[0] || user.email.split('@')[0]}</p>
+                <p className="font-bold">Account & Lists</p>
+                <div className="hidden group-hover:block absolute top-full right-0 bg-white text-black p-2 shadow-md rounded mt-1 z-50">
+                  <button onClick={signOutUser} className="block w-full text-left px-4 py-2 hover:bg-gray-100 whitespace-nowrap text-sm">Sign Out</button>
+                </div>
               </div>
-            </div>
-          ) : (
-            <Link href="/auth/signin" className="hidden md:block cursor-pointer border border-transparent hover:border-white p-1 rounded-sm">
-              <p>Hello, sign in</p>
-              <p className="font-bold">Account & Lists</p>
-            </Link>
+            ) : (
+              <Link href="/signin" className="hidden md:block cursor-pointer border border-transparent hover:border-white p-1 rounded-sm">
+                <p>Hello, sign in</p>
+                <p className="font-bold">Account & Lists</p>
+              </Link>
+            )
           )}
 
-          <div className="hidden md:block cursor-pointer border border-transparent hover:border-white p-1 rounded-sm">
+          <Link href="/orders" className="hidden md:block cursor-pointer border border-transparent hover:border-white p-1 rounded-sm">
             <p>Returns</p>
             <p className="font-bold">& Orders</p>
-          </div>
+          </Link>
 
           <Link href="/cart" className="flex items-center cursor-pointer border border-transparent hover:border-white p-1 rounded-sm relative">
             <div className="relative flex items-center">

@@ -97,7 +97,7 @@ export async function sendOrderEmail(
           </div>
           
           <div style="margin-bottom: 30px;">
-             <a href="#" style="background-color: #FFD814; color: #0f1111; text-decoration: none; padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: bold; border: 1px solid #FCD200; display: inline-block;">View or edit <span style="font-weight: normal;">order</span></a>
+             <a href="${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/orders/${orderId}" style="background-color: #FFD814; color: #0f1111; text-decoration: none; padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: bold; border: 1px solid #FCD200; display: inline-block;">View or edit <span style="font-weight: normal;">order</span></a>
           </div>
 
           <!-- Items -->
