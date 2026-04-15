@@ -6,35 +6,43 @@ Welcome to the most advanced Amazon storefront clone, built with **Next.js 16**,
 
 ## 🚀 Key Features
 
-### 🔐 Advanced Authentication
-- **OTP-Based Verification**: Secure login flow with simulated OTP generation and timing logic.
-- **Demo Mode**: Instant access with a "Demo User" profile for immediate exploration.
-- **Session Persistence**: Persistent user state across page reloads and browser sessions.
+### 👤 User Account & Profile
+- **Personalized Dashboard**: A centralized hub for managing orders, login security, and Prime benefits.
+- **Address Management**: Persistent address storage with visual map-based precise location selection.
+- **Account Security**: Secure login flow with OTP-based verification and session persistence.
+
+### 📍 Interactive Localization
+- **Map-Based Location**: A high-fidelity location picker with simulated map pinpointing for "Approximate" or "Precise" geographic context.
+- **Language Switcher**: Global UI language selection (EN, HI, TA, TE, KN) with demonstration-ready state management.
 
 ### 🛒 Immersive Shopping UX
 - **Amazon-Grade Home Page**: Dynamic 2x2 category grids overlapping a responsive, auto-sliding carousel.
-- **Smart Product Recovery**: "Buy it Again" functionality integrated directly into order history and return views.
-- **High-Fidelity PDP**: Product Detail Pages featuring color/size swatches (non-image based), EMI calculators, and bank offer highlights.
+- **Smart Product Recovery**: "Buy it Again" functionality integrated directly into order history and individual item views.
+- **High-Fidelity PDP**: Product Detail Pages featuring:
+    - Text-based Color and Size swatches.
+    - Detailed "Product Highlights" and metadata lists.
+    - EMI calculators and real-time bank offer highlights.
 
 ### 🔍 Discovery & Personalization
-- **Intent-Driven Recommendations**: "Inspired by your search" cards that dynamically update based on recent user search history stored in localized state.
-- **Deep Search**: Backend-powered multi-field searching across titles, categories, and descriptions.
+- **Intent-Driven Recommendations**: "Inspired by your search" cards that dynamically update based on recent user search history.
+- **Deep Search**: Backend-powered multi-field searching (Titles, Categories, Descriptions) with scroll-to-result anchors.
 - **Dynamic Filters**: Real-time sorting (price, rating, newest) and metadata filtering (Best Sellers, Limited Time Deals).
 
-### 📦 Order & Logistics
+### 📦 Logistics & Returns
 - **Tracking System**: Visual progress bar for order lifecycle (Ordered → Shipped → Out for Delivery → Delivered).
-- **Return & Exchange**: Fully functional request system with status persistence and reason tracking.
-- **Mailing Integration**: Automated purchase confirmation emails with Amazon-styled templates.
+- **Return & Exchange Request System**: Fully functional request flow with reason tracking and status persistence.
+- **Mailing Integration**: Automated purchase confirmation and OTP emails with Amazon-styled templates.
 
 ---
 
 ## 🏗️ System Architecture
 
+### Search & Intent Flow
 ```mermaid
 sequenceDiagram
     participant User
     participant Frontend as Next.js 16 Client
-    participant API as Next.js Server Actions
+    participant API as Next.js Server (force-dynamic)
     participant DB as Supabase (PostgreSQL)
 
     User->>Frontend: Enter Search Query
@@ -43,20 +51,41 @@ sequenceDiagram
     API->>DB: Prisma Query (ilike matches)
     DB-->>API: Return Result Set
     API-->>Frontend: JSON Response
-    Frontend-->>User: Update Results Bar (Scroll to results)
+    Frontend-->>User: Update Results (Scroll to results container)
+```
+
+### Authentication Flow
+```mermaid
+sequenceDiagram
+    participant User
+    participant Frontend
+    participant API
+    participant Mailer
+    participant DB
+
+    User->>Frontend: Enter Sign-up Details
+    Frontend->>API: POST /api/auth/signup
+    API->>DB: Store Temp OTP & Data
+    API->>Mailer: Send OTP Email
+    Mailer-->>User: Receive Email
+    User->>Frontend: Enter OTP
+    Frontend->>API: POST /api/auth/verify
+    API->>DB: Create User Record
+    API-->>Frontend: Success Response (Demo Auto-Login)
 ```
 
 ---
 
 ## 📊 Database Schema
 
-Our database is hosted on **Supabase** and managed via **Prisma ORM**. Below is the core architecture:
+Our database is hosted on **Supabase** and managed via **Prisma ORM**.
 
-### Model Overview
+### Model Relationships
 ```mermaid
 erDiagram
     User ||--o{ Order : places
     User ||--o{ Wishlist : "adds to"
+    User ||--o{ OTPVerification : "receives"
     Order ||--|{ OrderItem : "contains"
     Product ||--|{ OrderItem : "linked in"
     Product ||--o{ Wishlist : "saved in"
@@ -65,7 +94,8 @@ erDiagram
         string id PK
         string email
         string name
-        string role
+        string phone
+        string password
     }
 
     Product {
@@ -75,26 +105,48 @@ erDiagram
         int stock
         float rating
         bool isBestSeller
+        bool isLimitedTimeDeal
     }
 
     Order {
         string id PK
         string status
         float total
+        string address
         string returnReason
         string returnType
     }
 ```
 
-### Table Definitions
+---
 
-| Table | Purpose | Key Fields |
+## 🗺️ Sitemap (Routes)
+
+| Route | Purpose | Access |
 | :--- | :--- | :--- |
-| **Product** | Catalog storage | `imageUrl`, `discountPercentage`, `isLimitedTimeDeal` |
-| **Order** | Transaction tracking | `status`, `address`, `returnReason`, `returnType` |
-| **OrderItem** | Line items for orders | `quantity`, `unitPrice` |
-| **User** | Identity management | `email`, `emailVerified` |
-| **Wishlist** | Private save-for-later | `userId`, `productId` |
+| `/` | Interactive Home Page | Public |
+| `/product/[id]` | Advanced Product Detail | Public |
+| `/cart` | Shopping Basket | Public |
+| `/checkout` | Secure Payment Flow | Protected |
+| `/profile` | User Dashboard & Addresses | Protected |
+| `/orders` | High-level Order History | Protected |
+| `/orders/[id]` | Order Tracking & Returns | Protected |
+| `/wishlist` | Saved Items List | Protected |
+| `/signin` / `/signup` | Authentication Gateways | Public |
+
+---
+
+## 🔌 API Reference
+
+| Endpoint | Method | Description |
+| :--- | :--- | :--- |
+| `/api/products` | GET | List products with search/filter support |
+| `/api/orders` | POST | Create a new order (triggers email) |
+| `/api/orders/list` | GET | Fetch orders for a specific user |
+| `/api/orders/[id]` | GET | Fetch detailed order tracking data |
+| `/api/orders/[id]/return` | POST | Submit return/exchange request |
+| `/api/auth/signup` | POST | Initialize sign-up & send OTP |
+| `/api/auth/verify` | POST | Verify OTP & create user |
 
 ---
 
@@ -103,33 +155,32 @@ erDiagram
 | Layer | Technology |
 | :--- | :--- |
 | **Framework** | Next.js 16.2.3 (App Router + Turbopack) |
-| **Language** | TypeScript (Strict Mode) |
 | **Styling** | Tailwind CSS 4.0 (Neo-Amazon Design System) |
-| **Animations** | Framer Motion (Slide-overs & Fade-ins) |
 | **Database** | Prisma + PostgreSQL (Supabase) |
-| **Emails** | Nodemailer (AWS/Gmail ready) |
+| **Deployment** | Vercel Optimized (`force-dynamic` APIs) |
+| **Environment** | Production-hardened via robust `.gitignore` |
 
 ---
 
-## 📦 Getting Started
+## 📦 Production Setup
 
-1. **Install Dependencies**:
-   ```bash
-   npm install
+1. **Environment Config**:
+   Create a `.env` in the root (Protected via gitignore):
+   ```env
+   DATABASE_URL="postgres://..."
+   DIRECT_URL="postgres://..."
+   EMAIL_USER="you@gmail.com"
+   EMAIL_PASS="your-app-password"
    ```
 
-2. **Environment Setup**:
-   Create a `.env` file with your `DATABASE_URL` and `DIRECT_URL`.
-
-3. **Database Migration**:
+2. **Database Initialization**:
    ```bash
+   npx prisma generate
    npx prisma db push
    ```
 
-4. **Launch Dev Server**:
-   ```bash
-   npm run dev
-   ```
+3. **Build & Deploy**:
+   The project is configured for Vercel with dynamic route segments handled via `export const dynamic = "force-dynamic"` in all API routes.
 
 ---
 
