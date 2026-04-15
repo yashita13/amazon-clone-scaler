@@ -33,11 +33,28 @@ export default function ProductDetail({
 
   const isWishlisted = product ? isInWishlist(product.id) : false;
 
-  const colors = ["Black", "White", "Grey", "Red", "Blue"];
-  const sizes = ["S", "M", "L", "XL", "XXL"];
+  const isFashion = product?.category?.toLowerCase().includes("clothing");
 
-  const [selectedColor, setSelectedColor] = useState<string>(colors[0]);
+  const sizes = isFashion
+    ? ["S", "M", "L", "XL"]
+    : ["Free Size"];
+  const colors = ["Black", "White", "Grey", "Blue"];
   const [selectedSize, setSelectedSize] = useState<string>(sizes[0]);
+  const [selectedColor, setSelectedColor] = useState<string>(colors[0]);
+
+  const productHighlights = [
+    "High-quality materials and durable build",
+    "Designed for comfort and everyday use",
+    "Modern design with premium finish",
+    "Suitable for multiple use cases across categories",
+  ];
+
+  const highlights = product ? [
+    { label: "Category", value: product.category },
+    { label: "Rating", value: `${product.rating} / 5` },
+    { label: "Availability", value: product.stock > 0 ? "In Stock" : "Out of Stock" },
+    { label: "Quality", value: "Premium" },
+  ] : [];
 
   // Scroll to top on mount
   useEffect(() => {
@@ -324,7 +341,7 @@ export default function ProductDetail({
                 </div>
               </div>
 
-              {/* Top Highlights */}
+              {/* Top Highlights
               <div className="mb-8">
                 <h4 className="text-lg font-bold mb-4">Top highlights</h4>
                 <div className="grid grid-cols-2 gap-y-4">
@@ -347,15 +364,29 @@ export default function ProductDetail({
                     </div>
                   </div>
                 </div>
+              </div> */}
+              <div className="grid grid-cols-2 gap-y-4">
+                {highlights.map((item, i) => (
+                  <div key={i} className="flex items-center gap-3">
+                    <div className="w-6 h-6 text-gray-400">
+                      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 4.5v15m7.5-7.5h-15" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" />
+                      </svg>
+                    </div>
+                    <div>
+                      <p className="text-sm font-bold">{item.label}</p>
+                      <p className="text-xs text-gray-500">{item.value}</p>
+                    </div>
+                  </div>
+                ))}
               </div>
 
               <div className="py-4 border-t">
                 <h3 className="font-bold text-lg mb-2">More about this product</h3>
                 <ul className="list-disc ml-5 space-y-2 text-sm text-gray-800">
-                  <li>Premium manufacturing and high-quality materials for maximum comfort</li>
-                  <li>Responsive cushioning provides an energized ride for everyday road running</li>
-                  <li>Lightweight design with breathable mesh upper</li>
-                  <li>Durable rubber outsole for superior traction and grip</li>
+                  {productHighlights.map((item, i) => (
+                    <li key={i}>{item}</li>
+                  ))}
                 </ul>
               </div>
             </div>

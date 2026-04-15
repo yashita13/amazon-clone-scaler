@@ -13,7 +13,6 @@ import { useAuth } from "@/context/AuthContext";
 import Link from "next/link";
 
 const CAROUSEL_ITEMS = [
-  { image: "/returns_banner_1776282703549.png", link: "/orders" },
   { image: "/a1.jpg", link: "/?category=Women%27s%20Clothing" },
   { image: "/a2.png", link: "/?category=Beauty" },
   { image: "/a3.jpg", link: "/?category=Men%27s+Clothing" },
