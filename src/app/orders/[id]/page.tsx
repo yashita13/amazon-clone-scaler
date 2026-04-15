@@ -76,7 +76,8 @@ export default function OrderDetailPage() {
         setShowReturnForm(false);
         fetchOrder(); // Refresh data
       } else {
-        alert("Failed to submit request");
+        const data = await res.json();
+        alert(`Failed to submit request: ${data.details || data.error || "Unknown error"}`);
       }
     } catch (err) {
       alert("Something went wrong");

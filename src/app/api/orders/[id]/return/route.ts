@@ -10,6 +10,8 @@ export async function POST(
     const body = await request.json();
     const { reason, type } = body;
 
+    console.log(`[API] Processing ${type} request for order ${id}`);
+
     if (!reason || !type) {
       return NextResponse.json(
         { error: "Reason and type are required" },
@@ -17,23 +19,32 @@ export async function POST(
       );
     }
 
+    // Normalize type and map to valid OrderStatus
+    const statusType = type.toString().toUpperCase();
+    const newStatus = statusType === "RETURN" ? "RETURN_REQUESTED" : "EXCHANGED";
+
     const updatedOrder = await prisma.order.update({
       where: { id },
       data: {
-        status: type === "RETURN" ? "RETURN_REQUESTED" : "EXCHANGED",
+        status: newStatus as any,
         returnReason: reason,
-        returnType: type,
+        returnType: statusType,
       },
     });
+
+    console.log(`[API] Order ${id} updated to ${newStatus}`);
 
     return NextResponse.json({
       message: "Request submitted successfully",
       status: updatedOrder.status,
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error("POST /api/orders/[id]/return error:", error);
     return NextResponse.json(
-      { error: "Failed to process return/exchange" },
+      { 
+        error: "Failed to process return/exchange",
+        details: error.message 
+      },
       { status: 500 }
     );
   }
