@@ -15,7 +15,7 @@ const transporter = nodemailer.createTransport({
 
 export async function sendOrderEmail(
   email: string,
-  orderId: string,
+  orderIdOrObject: string | any,
   name: string,
   address: string
 ) {
@@ -25,10 +25,10 @@ export async function sendOrderEmail(
       return;
     }
 
-    let fullOrder;
-    if (typeof orderId === "string") {
+    let fullOrder: any;
+    if (typeof orderIdOrObject === "string") {
       fullOrder = await prisma.order.findUnique({
-        where: { id: orderId },
+        where: { id: orderIdOrObject },
         include: {
           items: {
             include: { product: true }
@@ -36,7 +36,7 @@ export async function sendOrderEmail(
         }
       });
     } else {
-      fullOrder = orderId; // Support passing the full object
+      fullOrder = orderIdOrObject; // Support passing the full object
     }
 
     if (!fullOrder || !fullOrder.items || fullOrder.items.length === 0) {
@@ -45,7 +45,7 @@ export async function sendOrderEmail(
     }
 
     // Build the rich HTML mimicking the screenshots using raw database rows
-    const itemsHtml = fullOrder.items.map(orderItem => `
+    const itemsHtml = fullOrder.items.map((orderItem: any) => `
       <div style="display: flex; margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 15px;">
         <img 
   src="https://upload.wikimedia.org/wikipedia/commons/4/4a/Amazon_icon.svg"
@@ -106,11 +106,11 @@ export async function sendOrderEmail(
 
           <div style="font-size: 14px; line-height: 1.5; margin-bottom: 20px;">
             <p style="margin: 0; font-weight: bold;">${name} &ndash; ${address.toUpperCase()}</p>
-            <p style="margin: 0;"><span style="color: #FF9900; font-weight: bold;">Order</span> # ${orderId}</p>
+            <p style="margin: 0;"><span style="color: #FF9900; font-weight: bold;">Order</span> # ${fullOrder.id}</p>
           </div>
           
           <div style="margin-bottom: 30px;">
-             <a href="${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/orders/${orderId}" style="background-color: #FFD814; color: #0f1111; text-decoration: none; padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: bold; border: 1px solid #FCD200; display: inline-block;">View or edit <span style="font-weight: normal;">order</span></a>
+             <a href="${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/orders/${fullOrder.id}" style="background-color: #FFD814; color: #0f1111; text-decoration: none; padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: bold; border: 1px solid #FCD200; display: inline-block;">View or edit <span style="font-weight: normal;">order</span></a>
           </div>
 
           <!-- Items -->

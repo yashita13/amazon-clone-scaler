@@ -1,3 +1,5 @@
+import { NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 import { signJWT } from "@/lib/auth";
 import { cookies } from "next/headers";
