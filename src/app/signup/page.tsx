@@ -63,7 +63,7 @@ export default function SignUp() {
       if (!res.ok) throw new Error(data.error || "Verification failed");
 
       // Verify success -> sign user in and go home
-      signInUser({ id: data.userId, email: data.email, name: data.name });
+      signInUser(data.user);
       alert("Registration Successful!"); // Toast requirement
       router.push("/");
     } catch (err: any) {
