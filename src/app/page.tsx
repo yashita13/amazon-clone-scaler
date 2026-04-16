@@ -53,6 +53,7 @@ export default function Home({
   const [recTitle, setRecTitle] = useState("Recommended for You");
 
   const resultsRef = useRef<HTMLDivElement>(null);
+  const isInitialRender = useRef(true);
 
   const nextSlide = () => {
     setCurrentImageIndex((prev) => (prev + 1) % CAROUSEL_ITEMS.length);
@@ -114,8 +115,13 @@ export default function Home({
 
   // Centralized Smooth Scroll to Results Header
   useEffect(() => {
+    // Skip scroll on landing (initial render)
+    if (isInitialRender.current) {
+      isInitialRender.current = false;
+      return;
+    }
+
     // We scroll whenever filters or pagination change
-    // But we don't want to scroll on the very first load if possible (optional)
     if (resultsRef.current) {
       // Small timeout to allow the new data to start rendering or URL to update
       const timer = setTimeout(() => {
