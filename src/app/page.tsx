@@ -54,6 +54,14 @@ export default function Home({
 
   const resultsRef = useRef<HTMLDivElement>(null);
   const isInitialRender = useRef(true);
+  const prevParams = useRef<{
+    category?: string;
+    search?: string;
+    page?: number;
+    bestSeller?: boolean;
+    deals?: boolean;
+    sort?: string;
+  }>({});
 
   const nextSlide = () => {
     setCurrentImageIndex((prev) => (prev + 1) % CAROUSEL_ITEMS.length);
@@ -118,15 +126,44 @@ export default function Home({
     // Skip scroll on landing (initial render)
     if (isInitialRender.current) {
       isInitialRender.current = false;
+      // Initialize prevParams to avoid double-firing on mount effects
+      prevParams.current = { 
+        category: categoryParam, 
+        search: searchParam, 
+        page: currentPage, 
+        bestSeller: bestSellerOnly, 
+        deals: dealsOnly, 
+        sort: sortBy 
+      };
       return;
     }
 
-    // We scroll whenever filters or pagination change
-    if (resultsRef.current) {
+    // Check if any significant parameter has changed from the last known state
+    const hasChanged = 
+      prevParams.current.category !== categoryParam ||
+      prevParams.current.search !== searchParam ||
+      prevParams.current.page !== currentPage ||
+      prevParams.current.bestSeller !== bestSellerOnly ||
+      prevParams.current.deals !== dealsOnly ||
+      prevParams.current.sort !== sortBy;
+
+    // We scroll whenever filters or pagination change after initial mount
+    if (hasChanged && resultsRef.current) {
       // Small timeout to allow the new data to start rendering or URL to update
       const timer = setTimeout(() => {
         resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
       }, 100);
+      
+      // Update the reference with the new state
+      prevParams.current = { 
+        category: categoryParam, 
+        search: searchParam, 
+        page: currentPage, 
+        bestSeller: bestSellerOnly, 
+        deals: dealsOnly, 
+        sort: sortBy 
+      };
+
       return () => clearTimeout(timer);
     }
   }, [categoryParam, searchParam, currentPage, bestSellerOnly, dealsOnly, sortBy]);
