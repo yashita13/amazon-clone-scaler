@@ -56,33 +56,8 @@ export default function SidebarMenu({ isOpen, onClose, categories }: SidebarMenu
               {/* Section: Trending */}
               <div className="py-4 border-b border-gray-200">
                 <h3 className="px-8 text-lg font-bold mb-2">Trending</h3>
-                {/* <MenuItem label="Bestsellers" href="/?isBestSeller=true" onClick={onClose} />
-                <MenuItem label="Limited Time Deals" href="/?isLimitedTimeDeal=true" onClick={onClose} /> */}
-                <MenuItem
-                  label="Bestsellers"
-                  href="/?isBestSeller=true"
-                  onClick={() => {
-                    onClose();
-                    setTimeout(() => {
-                      document.getElementById("bestseller-section")?.scrollIntoView({
-                        behavior: "smooth",
-                      });
-                    }, 300);
-                  }}
-                />
-
-                <MenuItem
-                  label="Limited Time Deals"
-                  href="/?isLimitedTimeDeal=true"
-                  onClick={() => {
-                    onClose();
-                    setTimeout(() => {
-                      document.getElementById("deals-section")?.scrollIntoView({
-                        behavior: "smooth",
-                      });
-                    }, 300);
-                  }}
-                />
+                <MenuItem label="Bestsellers" href="/?isBestSeller=true" onClick={onClose} />
+                <MenuItem label="Limited Time Deals" href="/?isLimitedTimeDeal=true" onClick={onClose} />
               </div>
 
               {/* Section: Digital Content and Devices */}

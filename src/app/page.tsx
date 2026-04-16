@@ -112,12 +112,18 @@ export default function Home({
     fetchProducts();
   }, [currentPage, searchParam, categoryParam, sortBy, bestSellerOnly, dealsOnly]);
 
-  // Smooth scroll to results when category changes
+  // Centralized Smooth Scroll to Results Header
   useEffect(() => {
-    if ((categoryParam || searchParam) && resultsRef.current) {
-      resultsRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+    // We scroll whenever filters or pagination change
+    // But we don't want to scroll on the very first load if possible (optional)
+    if (resultsRef.current) {
+      // Small timeout to allow the new data to start rendering or URL to update
+      const timer = setTimeout(() => {
+        resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 100);
+      return () => clearTimeout(timer);
     }
-  }, [categoryParam, searchParam]);
+  }, [categoryParam, searchParam, currentPage, bestSellerOnly, dealsOnly, sortBy]);
 
   // Sync state if URL changes directly
   useEffect(() => {
