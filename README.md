@@ -1,6 +1,7 @@
 # 🛒 Amazon Clone – Fullstack E-Commerce Platform
 
  **Live Demo:** https://amazon-yashita-scaler.vercel.app
+ 
  **GitHub Repo:** https://github.com/yashita13/amazon-yashita-scaler
 
 ---
