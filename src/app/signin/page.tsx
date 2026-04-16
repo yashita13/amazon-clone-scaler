@@ -30,7 +30,7 @@ export default function SignIn() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Failed to sign in");
 
-      signInUser({ id: data.userId, email: data.email, name: data.name });
+      signInUser(data.user);
       router.push("/");
     } catch (err: any) {
       setError(err.message);
