@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { Product } from "@prisma/client";
+import { useToast } from "./ToastContext";
 
 interface WishlistContextType {
   wishlistItems: Product[];
@@ -15,6 +16,7 @@ const WishlistContext = createContext<WishlistContextType | undefined>(undefined
 
 export function WishlistProvider({ children }: { children: React.ReactNode }) {
   const [wishlistItems, setWishlistItems] = useState<Product[]>([]);
+  const { addToast } = useToast();
 
   useEffect(() => {
     const saved = localStorage.getItem("amazon-yashita-wishlist");
@@ -34,11 +36,13 @@ export function WishlistProvider({ children }: { children: React.ReactNode }) {
   const addToWishlist = (product: Product) => {
     if (!wishlistItems.find((item) => item.id === product.id)) {
       setWishlistItems([...wishlistItems, product]);
+      addToast(`"${product.title.substring(0, 30)}..." saved to your wishlist.`, "SUCCESS");
     }
   };
 
   const removeFromWishlist = (id: string) => {
     setWishlistItems(wishlistItems.filter((item) => item.id !== id));
+    addToast("Item removed from your wishlist.", "INFO");
   };
 
   const isInWishlist = (id: string) => {

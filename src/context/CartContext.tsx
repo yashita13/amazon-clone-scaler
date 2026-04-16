@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useEffect, useReducer } from "react";
 import { Product } from "@prisma/client";
+import { useToast } from "@/context/ToastContext";
 
 export interface CartItem {
   product: Product;
@@ -62,7 +63,7 @@ function cartReducer(state: CartState, action: CartAction): CartState {
 interface CartContextType {
   cartItems: CartItem[];
   addToCart: (product: Product, quantity: number) => void;
-  removeFromCart: (id: string) => void;
+  removeFromCart: (id: string, title?: string) => void;
   updateQty: (id: string, quantity: number) => void;
   clearCart: () => void;
   cartTotal: number;
@@ -73,6 +74,7 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [state, dispatch] = useReducer(cartReducer, initialState);
+  const { addToast } = useToast();
 
   useEffect(() => {
     try {
@@ -91,10 +93,12 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   const addToCart = (product: Product, quantity: number) => {
     dispatch({ type: "ADD_ITEM", payload: { product, quantity } });
+    addToast(`"${product.title.substring(0, 30)}..." added to cart.`, "SUCCESS");
   };
 
-  const removeFromCart = (id: string) => {
+  const removeFromCart = (id: string, title?: string) => {
     dispatch({ type: "REMOVE_ITEM", payload: { id } });
+    addToast(`Item removed from your shopping basket.`, "INFO");
   };
 
   const updateQty = (id: string, quantity: number) => {

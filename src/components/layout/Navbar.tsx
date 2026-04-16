@@ -7,7 +7,9 @@ import { useState, useEffect } from "react";
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
 import { useWishlist } from "@/context/WishlistContext";
+import { Menu, Heart, ShoppingCart, User as UserIcon } from "lucide-react";
 import LocationModal from "./LocationModal";
+import SidebarMenu from "./SidebarMenu";
 
 export default function Navbar() {
   const router = useRouter();
@@ -21,6 +23,7 @@ export default function Navbar() {
   const [isLocationOpen, setIsLocationOpen] = useState(false);
   const [location, setLocation] = useState("Nagpur 440022");
   const [language, setLanguage] = useState("EN");
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const [mounted, setMounted] = useState(false);
   useEffect(() => {
@@ -87,15 +90,23 @@ export default function Navbar() {
         {/* Top Main Nav */}
         <div className="bg-[#131921] px-4 py-2 flex items-center justify-between space-x-2 md:space-x-4">
 
-          <div className="flex items-center space-x-2 md:space-x-4">
+          <div className="flex items-center space-x-1 md:space-x-4">
+            {/* Hamburger Menu Toggle */}
+            <button
+              onClick={() => setIsMenuOpen(true)}
+              className="p-1 border border-transparent hover:border-white rounded-sm text-white md:hidden"
+            >
+              <Menu size={28} />
+            </button>
+
             {/* Logo */}
             <Link href="/" className="flex items-center pt-2 border border-transparent hover:border-white p-1 rounded-sm shrink-0">
               <Image
                 src="/amazon-logo.png"
                 alt="Amazon"
-                width={100}
-                height={30}
-                className="object-contain"
+                width={85}
+                height={25}
+                className="object-contain md:w-[100px] md:h-[30px]"
               />
             </Link>
 
@@ -182,16 +193,13 @@ export default function Navbar() {
                   <Link href="/profile" className="block">
                     <p className="text-[11px] text-gray-300 leading-none">Hello, {user.name?.split(' ')[0] || user.email.split('@')[0]}</p>
                     <p className="font-bold text-sm flex items-center gap-1">
-                      Account & Lists
-                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-3 h-3 text-gray-400">
+                      Profile
+                      {/* <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-3 h-3 text-gray-400">
                         <path strokeLinecap="round" strokeLinejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
-                      </svg>
+                      </svg> */}
                     </p>
                   </Link>
-                  <div className="hidden group-hover:block absolute top-[90%] right-0 bg-white text-black shadow-xl rounded-sm mt-0.5 z-[150] min-w-[150px] border border-gray-200 overflow-hidden">
-                    <Link href="/profile" className="block w-full text-left px-4 py-2.5 hover:bg-[#f3f3f3] text-sm border-b border-gray-100 font-medium text-[#111]">Your Profile</Link>
-                    <button onClick={signOutUser} className="block w-full text-left px-4 py-2.5 hover:bg-[#f3f3f3] text-sm text-[#c45500] font-medium">Sign Out</button>
-                  </div>
+
                 </div>
               ) : (
                 <Link href="/signin" className="cursor-pointer border border-transparent hover:border-white p-1 rounded-sm">
@@ -206,28 +214,30 @@ export default function Navbar() {
               <p className="font-bold text-sm">& Orders</p>
             </Link>
 
-            <Link href="/wishlist" className="hidden lg:flex items-center cursor-pointer border border-transparent hover:border-white py-1 px-2 rounded-sm relative">
+            <Link href="/wishlist" className="flex items-center cursor-pointer border border-transparent hover:border-white py-1 px-1 sm:px-2 rounded-sm relative group">
               <div className="relative pt-1">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-7 h-7">
+                <Heart size={24} className={`sm:hidden ${wishlistCount > 0 ? "fill-red-500 text-red-500" : ""}`} />
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-7 h-7 hidden sm:block">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.015-4.5-4.5-4.5-1.74 0-3.24 1-4 2.44-.76-1.44-2.26-2.44-4-2.44C5.015 3.75 3 5.765 3 8.25c0 6.75 9 11.25 9 11.25s9-4.5 9-11.25Z" />
                 </svg>
-                <span className="absolute -top-1 -right-1.5 text-[#e47911] font-bold text-xs px-1">
+                <span className="absolute -top-1 -right-2 text-[#e47911] font-bold text-xs px-1 bg-[#131921] rounded-full">
                   {mounted ? wishlistCount : 0}
                 </span>
               </div>
-              <span className="font-bold mt-2 ml-1">Wishlist</span>
+              <span className="font-bold mt-2 ml-1 hidden lg:block">Wishlist</span>
             </Link>
 
-            <Link href="/cart" className="flex items-center cursor-pointer border border-transparent hover:border-white py-1 px-2 rounded-sm relative">
+            <Link href="/cart" className="flex items-center cursor-pointer border border-transparent hover:border-white py-1 px-1 sm:px-2 rounded-sm relative">
               <div className="relative pt-1">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-8 h-8">
+                <ShoppingCart size={24} className="sm:hidden" />
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-8 h-8 hidden sm:block">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 0 0-16.536-1.84M7.5 14.25 5.106 5.272M6 20.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm12.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z" />
                 </svg>
-                <span className="absolute -top-1 right-2 text-[#e47911] font-bold text-xs px-1">
+                <span className="absolute -top-1 right-1 sm:right-2 text-[#e47911] font-bold text-xs px-1 bg-[#131921] rounded-full">
                   {mounted ? itemCount : 0}
                 </span>
               </div>
-              <span className="font-bold mt-2">Cart</span>
+              <span className="font-bold mt-2 hidden sm:block">Cart</span>
             </Link>
           </div>
         </div>
@@ -251,13 +261,16 @@ export default function Navbar() {
         </div>
 
         {/* Category Links Band */}
-        <div className="bg-[#232f3e] text-white text-[13px] px-4 py-1.5 flex space-x-4 overflow-x-auto whitespace-nowrap scrollbar-hide border-t border-[#37475a]/30">
-          <Link href="/" className="flex items-center space-x-1 cursor-pointer hover:border-white border border-transparent p-1 -ml-1">
+        <div className="bg-[#232f3e] text-white text-[13px] px-4 py-1.5 flex items-center space-x-4 overflow-x-auto whitespace-nowrap scrollbar-hide border-t border-[#37475a]/30">
+          <button
+            onClick={() => setIsMenuOpen(true)}
+            className="flex items-center space-x-1 cursor-pointer hover:border-white border border-transparent p-1 -ml-1"
+          >
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
               <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
             </svg>
             <span className="font-bold">All</span>
-          </Link>
+          </button>
           {subNavLinks.map((link) => (
             <Link
               key={link.label}
@@ -277,6 +290,12 @@ export default function Navbar() {
           setLocation(loc);
           setIsLocationOpen(false);
         }}
+      />
+
+      <SidebarMenu
+        isOpen={isMenuOpen}
+        onClose={() => setIsMenuOpen(false)}
+        categories={categories}
       />
     </>
   );

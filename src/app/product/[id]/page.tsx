@@ -167,17 +167,17 @@ export default function ProductDetail({
           &larr; Back to results
         </Link>
 
-        <div className="flex flex-col md:flex-row gap-8 lg:gap-12">
+        <div className="flex flex-col md:flex-row gap-6 lg:gap-12">
           {/* Left: Image Panel with Thumbnails */}
-          <div className="md:w-1/2 lg:w-2/5 sticky top-24 self-start">
-            <div className="flex gap-3">
+          <div className="md:w-1/2 lg:w-2/5 md:sticky md:top-24 self-start">
+            <div className="flex flex-col-reverse sm:flex-row gap-3">
               {/* Thumbnail Strip */}
-              <div className="flex flex-col gap-2">
+              <div className="flex sm:flex-col gap-2 overflow-x-auto no-scrollbar pb-2 sm:pb-0">
                 {thumbnails.map((thumb, i) => (
                   <button
                     key={i}
                     onClick={() => { setSelectedThumb(i); setMainImgSrc(thumb); }}
-                    className={`w-14 h-14 border-2 rounded overflow-hidden relative ${selectedThumb === i ? 'border-[#C45500]' : 'border-gray-200 hover:border-[#C45500]'}`}
+                    className={`w-14 h-14 shrink-0 border-2 rounded overflow-hidden relative ${selectedThumb === i ? 'border-[#C45500]' : 'border-gray-200 hover:border-[#C45500]'}`}
                   >
                     <Image
                       src={thumb}
@@ -207,8 +207,8 @@ export default function ProductDetail({
           <div className="md:w-1/2 lg:w-3/5 flex flex-col lg:flex-row gap-8">
 
             {/* Product Info */}
-            <div className="flex-1">
-              <h1 className="text-2xl sm:text-2xl font-medium leading-tight mb-1 text-[#0F1111]">
+            <div className="flex-1 order-1 lg:order-none">
+              <h1 className="text-xl sm:text-2xl font-medium leading-tight mb-2 text-[#0F1111]">
                 {product.title}
               </h1>
 
@@ -392,8 +392,8 @@ export default function ProductDetail({
             </div>
 
             {/* Right Side: Buy Box (lg screen) */}
-            <div className="lg:w-1/3 xl:w-[300px]">
-              <div className="border border-gray-300 rounded-lg p-4 shadow-sm sticky top-24 bg-white">
+            <div className="w-full lg:w-1/3 xl:w-[300px] order-2 lg:order-none mt-6 lg:mt-0">
+              <div className="border border-gray-300 rounded-lg p-4 shadow-sm lg:sticky lg:top-24 bg-white">
                 <div className="flex items-start mb-1">
                   <span className="text-xs mt-1.5 font-medium">₹</span>
                   <span className="text-2xl font-medium">{product.price.toLocaleString("en-IN")}</span>
@@ -429,17 +429,17 @@ export default function ProductDetail({
                       </label>
                     </div>
 
-                    <div className="space-y-2">
+                    <div className="space-y-3">
                       <button
                         onClick={handleAddToCart}
-                        className="w-full bg-[#FFD814] hover:bg-[#F7CA00] text-[#0F1111] py-2 rounded-full shadow-[0_2px_5px_0_rgba(213,217,217,0.5)] border border-[#FCD200] text-sm font-medium transition-colors"
+                        className="w-full bg-[#FFD814] hover:bg-[#F7CA00] text-[#0F1111] py-3 lg:py-2 rounded-full shadow-[0_2px_5px_0_rgba(213,217,217,0.5)] border border-[#FCD200] text-sm font-bold transition-colors"
                       >
                         Add to Cart
                       </button>
 
                       <button
                         onClick={handleBuyNow}
-                        className="w-full bg-[#FFA41C] hover:bg-[#FA8900] text-[#0F1111] py-2 rounded-full shadow-[0_2px_5px_0_rgba(213,217,217,0.5)] border border-[#FF8F00] text-sm font-medium transition-colors"
+                        className="w-full bg-[#FFA41C] hover:bg-[#FA8900] text-[#0F1111] py-3 lg:py-2 rounded-full shadow-[0_2px_5px_0_rgba(213,217,217,0.5)] border border-[#FF8F00] text-sm font-bold transition-colors"
                       >
                         Buy Now
                       </button>
@@ -448,7 +448,7 @@ export default function ProductDetail({
                     <div className="mt-4 pt-4 border-t space-y-4">
                       <button
                         onClick={() => product && toggleWishlist(product)}
-                        className={`w-full flex items-center justify-center gap-2 py-2 rounded-lg border border-gray-300 shadow-sm text-xs font-medium transition-colors ${isWishlisted ? 'bg-red-50 border-red-200 text-red-700' : 'bg-white hover:bg-gray-100 text-gray-700'}`}
+                        className={`w-full flex items-center justify-center gap-2 py-2.5 rounded-lg border border-gray-300 shadow-sm text-xs font-medium transition-colors ${isWishlisted ? 'bg-red-50 border-red-200 text-red-700' : 'bg-white hover:bg-gray-100 text-gray-700'}`}
                       >
                         <Heart className={`w-3 h-3 ${isWishlisted ? 'fill-red-500 text-red-500' : ''}`} />
                         {isWishlisted ? "In Wishlist" : "Add to Wish List"}
