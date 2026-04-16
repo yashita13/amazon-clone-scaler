@@ -88,7 +88,7 @@ export default function Navbar() {
     <>
       <header className="flex flex-col sticky top-0 z-[100] shadow-md transition-all">
         {/* Top Main Nav */}
-        <div className="bg-[#131921] px-4 py-2 flex items-center justify-between space-x-2 md:space-x-4">
+        <div className="bg-[#131921] px-2 sm:px-4 py-2 flex items-center justify-between gap-1 sm:gap-4">
 
           <div className="flex items-center space-x-1 md:space-x-4">
             {/* Hamburger Menu Toggle */}
@@ -100,13 +100,13 @@ export default function Navbar() {
             </button>
 
             {/* Logo */}
-            <Link href="/" className="flex items-center pt-2 border border-transparent hover:border-white p-1 rounded-sm shrink-0">
+            <Link href="/" className="flex items-center pt-2 border border-transparent hover:border-white p-0.5 sm:p-1 rounded-sm shrink-0">
               <Image
                 src="/amazon-logo.png"
                 alt="Amazon"
-                width={85}
-                height={25}
-                className="object-contain md:w-[100px] md:h-[30px]"
+                width={70}
+                height={20}
+                className="object-contain sm:w-[100px] sm:h-[30px]"
               />
             </Link>
 
@@ -189,17 +189,11 @@ export default function Navbar() {
 
             {mounted && (
               user ? (
-                <div className="cursor-pointer border border-transparent hover:border-white p-1 rounded-sm group relative">
+                <div className="cursor-pointer border border-transparent hover:border-white p-0.5 sm:p-1 rounded-sm group relative">
                   <Link href="/profile" className="block">
-                    <p className="text-[11px] text-gray-300 leading-none">Hello, {user.name?.split(' ')[0] || user.email.split('@')[0]}</p>
-                    <p className="font-bold text-sm flex items-center gap-1">
-                      Profile
-                      {/* <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-3 h-3 text-gray-400">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
-                      </svg> */}
-                    </p>
+                    <p className="text-[10px] sm:text-[11px] text-gray-300 leading-none truncate max-w-[60px] sm:max-w-none">Hi, {user.name?.split(' ')[0] || user.email.split('@')[0]}</p>
+                    <p className="font-bold text-xs sm:text-sm flex items-center gap-1">Profile</p>
                   </Link>
-
                 </div>
               ) : (
                 <Link href="/signin" className="cursor-pointer border border-transparent hover:border-white p-1 rounded-sm">

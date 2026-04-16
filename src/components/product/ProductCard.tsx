@@ -18,7 +18,7 @@ export default function ProductCard({ product, priority = false }: { product: Pr
   const isWishlisted = isInWishlist(product.id);
 
   return (
-    <div className="flex flex-col bg-white z-20 p-4 rounded-none sm:rounded-sm border border-gray-100 hover:shadow-xl transition-all duration-300 relative group min-h-[420px]">
+    <div className="flex flex-col bg-white z-20 p-2.5 sm:p-4 rounded-none sm:rounded-sm border border-gray-100 hover:shadow-xl transition-all duration-300 relative group min-h-[380px] sm:min-h-[420px]">
       
       {/* Best Seller Badge */}
       {product.isBestSeller && (
@@ -60,7 +60,7 @@ export default function ProductCard({ product, priority = false }: { product: Pr
           <div className="text-[11px] uppercase font-bold text-gray-400 tracking-tight mb-1">
             {product.category}
           </div>
-          <h4 className="text-[15px] leading-snug font-medium line-clamp-2 hover:text-[#C7511F] mb-1">{product.title}</h4>
+          <h4 className="text-[13px] sm:text-[15px] leading-snug font-medium line-clamp-2 hover:text-[#C7511F] mb-1">{product.title}</h4>
           
           <div className="flex items-center my-1 text-sm">
             <div className="flex text-[#F3A847]">
@@ -71,7 +71,7 @@ export default function ProductCard({ product, priority = false }: { product: Pr
                 ))}
                {product.rating % 1 !== 0 && <span>☆</span>}
             </div>
-            <span className="text-[#007185] ml-2 font-medium hover:underline text-xs">{product.rating}</span>
+            <span className="text-[#007185] ml-1 sm:ml-2 font-medium hover:underline text-[10px] sm:text-xs">{product.rating}</span>
           </div>
           
           {product.isLimitedTimeDeal && (
@@ -85,10 +85,10 @@ export default function ProductCard({ product, priority = false }: { product: Pr
             </div>
           )}
           
-          <div className="flex items-baseline gap-2 mt-1">
-            <span className="text-2xl font-medium">{formatINR(product.price)}</span>
+          <div className="flex items-baseline gap-1 sm:gap-2 mt-1">
+            <span className="text-lg sm:text-2xl font-medium">{formatINR(product.price)}</span>
             {product.oldPrice && (
-              <span className="text-gray-500 text-xs line-through block">
+              <span className="text-gray-500 text-[10px] sm:text-xs line-through block">
                 M.R.P: {formatINR(product.oldPrice)}
               </span>
             )}
@@ -103,9 +103,9 @@ export default function ProductCard({ product, priority = false }: { product: Pr
             {Math.floor(product.rating * 1.5)}K+ bought in past month
           </p>
 
-          <div className="mt-2 p-1.5 bg-gray-50 rounded border border-gray-100 text-[11px] text-[#565959]">
-            <span className="font-bold text-black">Save with offers: </span>
-            Up to 5% back with Amazon Pay ICICI card
+          <div className="mt-2 p-1 sm:p-1.5 bg-gray-50 rounded border border-gray-100 text-[9px] sm:text-[11px] text-[#565959] line-clamp-2">
+            <span className="font-bold text-black">Offers: </span>
+            Up to 5% back with Amazon ICICI card
           </div>
         </div>
       </Link>

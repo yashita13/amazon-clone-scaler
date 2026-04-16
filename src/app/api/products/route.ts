@@ -1,6 +1,59 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
+// Helper to fetch and cache external products from DummyJSON
+async function fetchAndCacheExternalProducts(searchQuery: string) {
+  try {
+    const url = searchQuery 
+      ? `https://dummyjson.com/products/search?q=${encodeURIComponent(searchQuery)}&limit=20`
+      : `https://dummyjson.com/products?limit=20`;
+      
+    const res = await fetch(url);
+    if (!res.ok) return [];
+    
+    const data = await res.json();
+    const externalProducts = data.products || [];
+
+    // Map and Upsert into local DB for consistency (detail view, cart, etc.)
+    const savedProducts = await Promise.all(
+      externalProducts.map(async (p: any) => {
+        const extId = `ext_dj_${p.id}`;
+        return prisma.product.upsert({
+          where: { id: extId },
+          update: {
+            title: p.title,
+            description: p.description,
+            price: p.price,
+            imageUrl: p.thumbnail,
+            category: p.category.charAt(0).toUpperCase() + p.category.slice(1),
+            rating: p.rating || 0,
+            stock: p.stock || 10,
+            discountPercentage: Math.round(p.discountPercentage) || null,
+            oldPrice: p.price / (1 - (p.discountPercentage || 0) / 100),
+          },
+          create: {
+            id: extId,
+            title: p.title,
+            description: p.description,
+            price: p.price,
+            imageUrl: p.thumbnail,
+            category: p.category.charAt(0).toUpperCase() + p.category.slice(1),
+            rating: p.rating || 0,
+            stock: p.stock || 10,
+            discountPercentage: Math.round(p.discountPercentage) || null,
+            oldPrice: p.price / (1 - (p.discountPercentage || 0) / 100),
+          }
+        });
+      })
+    );
+
+    return savedProducts;
+  } catch (error) {
+    console.error("fetchAndCacheExternalProducts error:", error);
+    return [];
+  }
+}
+
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
@@ -13,6 +66,11 @@ export async function GET(request: Request) {
     const limitedDeal = searchParams.get("isLimitedTimeDeal") === "true";
 
     const skip = (page - 1) * limit;
+
+    // Trigger external fetch if we are searching 
+    if (search || (category && category !== "All" && category !== "All Categories")) {
+      await fetchAndCacheExternalProducts(search || category);
+    }
 
     const where: any = {};
     

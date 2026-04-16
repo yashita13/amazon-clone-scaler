@@ -372,11 +372,10 @@ export default function Home({
       </div>
 
       {/* Results Header Bar */}
-      <div ref={resultsRef} className="relative z-20 bg-white border-b border-gray-200 py-3 px-4 flex flex-col sm:flex-row justify-between items-center gap-4 shadow-sm scroll-mt-24">
-        <div className="text-[14px] text-gray-700">
-          <span className="font-medium">1-{products.length}</span> of over <span className="font-medium">{totalProducts}</span> results
-          {searchParam && <span> for <span className="text-[#C45500] font-bold">"{searchParam}"</span></span>}
-          {categoryParam && categoryParam !== "All Categories" && <span> in <span className="font-bold underline">{categoryParam}</span></span>}
+      <div ref={resultsRef} className="relative z-20 bg-white border-b border-gray-200 py-2 sm:py-3 px-3 sm:px-4 flex flex-col sm:flex-row justify-between items-center gap-2 sm:gap-4 shadow-sm scroll-mt-24">
+        <div className="text-[12px] sm:text-[14px] text-gray-700">
+          <span className="font-medium">1-{products.length}</span> of <span className="font-medium">{totalProducts}</span>
+          {searchParam && <span className="hidden sm:inline"> for <span className="text-[#C45500] font-bold">"{searchParam}"</span></span>}
         </div>
 
         <div className="flex items-center gap-4">
@@ -492,13 +491,14 @@ export default function Home({
                       window.history.pushState(null, '', newUrl);
                     }}
                     disabled={currentPage === 1}
-                    className="px-6 py-2 border border-gray-300 rounded-lg bg-white hover:bg-gray-50 flex items-center disabled:opacity-50 shadow-sm transition-all"
+                    className="px-3 sm:px-6 py-1.5 sm:py-2 border border-gray-300 rounded-lg bg-white hover:bg-gray-50 flex items-center disabled:opacity-50 shadow-sm transition-all text-sm"
                   >
-                    <ChevronLeftIcon className="h-5 w-5 mr-1" />
-                    Previous
+                    <ChevronLeftIcon className="h-4 w-4 sm:h-5 sm:w-5 mr-0.5 sm:mr-1" />
+                    <span className="hidden sm:inline">Previous</span>
+                    <span className="sm:hidden">Prev</span>
                   </button>
-                  <div className="flex items-center px-6 py-2 font-medium">
-                    Page <span className="mx-1 text-[#C45500] font-bold">{currentPage}</span> of {totalPages}
+                  <div className="flex items-center px-2 sm:px-6 py-1.5 sm:py-2 font-medium text-xs sm:text-base">
+                    <span className="sm:hidden">P.</span><span className="hidden sm:inline">Page</span> <span className="mx-1 text-[#C45500] font-bold">{currentPage}</span> of {totalPages}
                   </div>
                   <button
                     onClick={() => {
@@ -508,10 +508,11 @@ export default function Home({
                       window.history.pushState(null, '', newUrl);
                     }}
                     disabled={currentPage === totalPages}
-                    className="px-6 py-2 border border-gray-300 rounded-lg bg-white hover:bg-gray-50 flex items-center disabled:opacity-50 shadow-sm transition-all"
+                    className="px-3 sm:px-6 py-1.5 sm:py-2 border border-gray-300 rounded-lg bg-white hover:bg-gray-50 flex items-center disabled:opacity-50 shadow-sm transition-all text-sm"
                   >
-                    Next
-                    <ChevronRightIcon className="h-5 w-5 ml-1" />
+                    <span className="hidden sm:inline">Next</span>
+                    <span className="sm:hidden">Next</span>
+                    <ChevronRightIcon className="h-4 w-4 sm:h-5 sm:w-5 ml-0.5 sm:ml-1" />
                   </button>
                 </div>
               )}
