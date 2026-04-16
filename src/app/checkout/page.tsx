@@ -8,17 +8,20 @@ import { useState, useEffect } from "react";
 import { formatINR } from "@/lib/formatPrice";
 import {
   CreditCard,
-  Smartphone,
-  Landmark,
-  Wallet,
-  Banknote,
   CheckCircle,
   AlertCircle,
   Truck,
   ShieldCheck,
-  ChevronDown
+  ChevronDown,
+  Mail,
+  Clock as ClockIcon,
+  Landmark,
+  Wallet,
+  Banknote
 } from "lucide-react";
 import Image from "next/image";
+import { getOrCreateGuestId } from "@/lib/orderUtils";
+import { Smartphone } from "lucide-react";
 
 type PaymentMethod = "UPI" | "CARD" | "NETBANKING" | "EMI" | "COD";
 
@@ -26,16 +29,20 @@ interface Provider {
   id: string;
   name: string;
   isMostlyUsed?: boolean;
+  color?: string;
+  initials?: string;
+  isRecent?: boolean;
 }
 
 export default function Checkout() {
-  const { cartItems, cartTotal, clearCart } = useCart();
+  const { cartItems, cartTotal, pricing, clearCart } = useCart();
   const router = useRouter();
   const { user } = useAuth();
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [orderConfirmed, setOrderConfirmed] = useState<string | null>(null);
+  const [orderTimestamp, setOrderTimestamp] = useState<string | null>(null);
 
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("UPI");
   const [selectedProvider, setSelectedProvider] = useState<string>("amazon_pay_upi");
@@ -68,9 +75,7 @@ export default function Checkout() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const estimatedTax = cartTotal * 0.18;
-  const shippingCharge = cartTotal > 500 ? 0 : 40;
-  const orderTotal = cartTotal + estimatedTax + shippingCharge;
+  const { itemsTotal, taxAmount, deliveryFee, finalTotal } = pricing;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -85,12 +90,13 @@ export default function Checkout() {
         quantity: item.quantity,
         unitPrice: item.product.price
       })),
-      total: orderTotal,
+      total: finalTotal,
       email: formData.email,
       name: formData.name,
       address: `${formData.address}, ${formData.city}, ${formData.zip}`,
       paymentMethod,
-      paymentProvider: selectedProvider
+      paymentProvider: selectedProvider,
+      guestId: (!user || user.id.includes("guest")) ? getOrCreateGuestId() : null
     };
 
     try {
@@ -109,6 +115,9 @@ export default function Checkout() {
       }
 
       setOrderConfirmed(data.orderId);
+      if (data.timestamp) {
+        setOrderTimestamp(new Date(data.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
+      }
       clearCart();
     } catch (err: any) {
       setError(err.message);
@@ -118,41 +127,66 @@ export default function Checkout() {
   };
 
   const upiProviders: Provider[] = [
-    { id: "amazon_pay_upi", name: "Amazon Pay UPI", isMostlyUsed: true },
-    { id: "gpay", name: "Google Pay" },
-    { id: "phonepe", name: "PhonePe" },
-    { id: "paytm", name: "Paytm" },
+    { id: "amazon_pay_upi", name: "Amazon Pay UPI", isMostlyUsed: true, color: "bg-[#FF9900]", initials: "AP" },
+    { id: "gpay", name: "Google Pay", color: "bg-white border-gray-100", initials: "G", isRecent: true },
+    { id: "phonepe", name: "PhonePe", color: "bg-[#5f259f]", initials: "PP" },
+    { id: "paytm", name: "Paytm", color: "bg-[#002e6e]", initials: "Pt" },
   ];
 
   const cardProviders: Provider[] = [
-    { id: "axis_bank", name: "Axis Bank Credit Card" },
-    { id: "sbi_card", name: "SBI Credit Card" },
-    { id: "other_card", name: "Other Credit/Debit Card" },
+    { id: "axis_bank", name: "Axis Bank Credit Card", color: "bg-[#971237]", initials: "AX" },
+    { id: "sbi_card", name: "SBI Credit Card", color: "bg-[#00a1e3]", initials: "SB" },
+    { id: "hdfc_card", name: "HDFC Credit Card", color: "bg-[#004a8f]", initials: "HD" },
+    { id: "other_card", name: "Other Credit/Debit Card", color: "bg-gray-400", initials: "CC" },
   ];
 
   const netBankingProviders: Provider[] = [
-    { id: "sbi", name: "State Bank of India" },
-    { id: "hdfc", name: "HDFC Bank" },
-    { id: "icici", name: "ICICI Bank" },
-    { id: "axis", name: "Axis Bank" },
+    { id: "sbi", name: "State Bank of India", color: "bg-[#00a1e3]", initials: "SB" },
+    { id: "hdfc", name: "HDFC Bank", color: "bg-[#004a8f]", initials: "HD" },
+    { id: "icici", name: "ICICI Bank", color: "bg-[#f37021]", initials: "IC" },
+    { id: "axis", name: "Axis Bank", color: "bg-[#971237]", initials: "AX" },
+    { id: "kotak", name: "Kotak Mahindra", color: "bg-[#ee1c25]", initials: "KM" },
   ];
 
   if (orderConfirmed) {
     return (
       <div className="max-w-[800px] mx-auto p-4 py-16 text-center">
-        <div className="bg-white p-12 rounded-lg shadow-sm border border-gray-200">
+        <div className="bg-white p-8 sm:p-12 rounded-lg shadow-sm border border-gray-200">
           <div className="flex justify-center mb-6">
-            <CheckCircle size={80} className="text-green-600" />
+            <div className="bg-green-100 p-4 rounded-full">
+              <CheckCircle size={60} className="text-green-600" />
+            </div>
           </div>
-          <h1 className="text-3xl font-medium mb-4 text-green-700">Order Placed, thank you!</h1>
-          <p className="text-gray-600 mb-6 text-lg">Confirmation will be sent to your email.</p>
-          <div className="bg-gray-50 p-4 rounded mb-8 text-left inline-block w-full max-w-sm mx-auto border border-gray-200">
-            <p className="text-sm text-gray-400 font-bold mb-1 uppercase tracking-wider">Order Number</p>
-            <p className="font-mono text-lg font-bold">#{orderConfirmed}</p>
+          <h1 className="text-3xl font-bold mb-4 text-gray-900 tracking-tight">Order placed successfully!</h1>
+
+          <div className="space-y-4 mb-8">
+            <div className="flex items-center justify-center gap-2 text-gray-600">
+              <Mail size={18} className="text-[#FF9900]" />
+              <p className="text-sm">Confirmation email sent to <span className="font-bold text-gray-900">{formData.email}</span></p>
+            </div>
+            {orderTimestamp && (
+              <div className="flex items-center justify-center gap-2 text-gray-500">
+                <ClockIcon size={16} />
+                <p className="text-xs">Order processed at <span className="font-medium text-gray-700">{orderTimestamp}</span></p>
+              </div>
+            )}
           </div>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/orders" className="text-sm font-medium text-[#007185] hover:underline">View your orders</Link>
-            <Link href="/" className="bg-[#FF9900] hover:bg-[#F3A847] text-black border border-[#a88734] py-2 px-8 rounded shadow-sm font-medium">Continue Shopping</Link>
+
+          <div className="bg-gray-50 p-5 rounded-lg mb-8 text-left border border-gray-200 max-w-sm mx-auto">
+            <div className="flex justify-between items-center mb-1">
+              <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Order Number</p>
+              <div className="bg-green-100 text-green-700 text-[8px] font-black px-1.5 py-0.5 rounded uppercase">Payment Success</div>
+            </div>
+            <p className="font-mono text-lg font-bold text-gray-800">#{orderConfirmed}</p>
+          </div>
+
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+            <Link href="/" className="bg-[#FF9900] hover:bg-[#F3A847] text-black border border-[#a88734] py-2.5 px-8 rounded-lg shadow-sm font-bold w-full sm:w-auto transition-colors">
+              Continue Shopping
+            </Link>
+            <Link href="/orders" className="text-sm font-bold text-[#007185] hover:underline">
+              View your orders
+            </Link>
           </div>
         </div>
       </div>
@@ -253,13 +287,28 @@ export default function Checkout() {
                         <button
                           key={p.id}
                           onClick={() => setSelectedProvider(p.id)}
-                          className={`p-3 border rounded-md flex items-center justify-between text-left transition-all hover:bg-white ${selectedProvider === p.id ? "border-[#e77600] ring-1 ring-[#e77600] bg-white" : "border-gray-300 bg-gray-50 text-gray-600"}`}
+                          className={`p-3 border rounded-lg flex items-center justify-between text-left transition-all hover:bg-white overflow-hidden relative ${selectedProvider === p.id ? "border-[#e77600] ring-1 ring-[#e77600] bg-white shadow-sm" : "border-gray-200 bg-gray-50/50 text-gray-700"}`}
                         >
-                          <div className="flex flex-col">
-                            <span className="text-sm font-medium">{p.name}</span>
-                            {p.isMostlyUsed && <span className="text-[10px] text-green-700 font-bold uppercase tracking-tight">Mostly Used</span>}
+                          <div className="flex items-center gap-3">
+                            <div className={`w-8 h-8 rounded flex items-center justify-center text-[10px] font-black text-white shrink-0 shadow-sm ${p.id === 'gpay' ? "border border-gray-100" : p.color}`}>
+                              {p.id === 'gpay' ? (
+                                <div className="flex gap-0.5 font-bold">
+                                  <span className="text-blue-500">G</span>
+                                  <span className="text-red-500">P</span>
+                                  <span className="text-yellow-600">a</span>
+                                  <span className="text-green-500">y</span>
+                                </div>
+                              ) : p.initials}
+                            </div>
+                            <div className="flex flex-col">
+                              <span className="text-[13px] font-bold">{p.name}</span>
+                              <div className="flex gap-1.5 mt-0.5">
+                                {p.isMostlyUsed && <span className="text-[8px] bg-green-100 text-green-700 font-black px-1.5 py-0.5 rounded uppercase tracking-tighter">MOSTLY USED</span>}
+                                {p.isRecent && <span className="text-[8px] bg-blue-100 text-blue-700 font-black px-1.5 py-0.5 rounded uppercase tracking-tighter">RECENTLY USED</span>}
+                              </div>
+                            </div>
                           </div>
-                          {selectedProvider === p.id && <CheckCircle size={16} className="text-[#e77600]" />}
+                          {selectedProvider === p.id && <div className="bg-[#e77600] text-white rounded-full p-0.5"><CheckCircle size={14} /></div>}
                         </button>
                       ))}
                     </div>
@@ -393,21 +442,21 @@ export default function Checkout() {
                 <div className="space-y-3 text-sm">
                   <div className="flex justify-between">
                     <span className="text-gray-600">Items:</span>
-                    <span className="font-medium text-gray-800">{formatINR(cartTotal)}</span>
+                    <span className="font-medium text-gray-800">{formatINR(itemsTotal)}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600">Delivery:</span>
-                    <span className={`font-medium ${shippingCharge === 0 ? "text-green-700" : "text-gray-800"}`}>
-                      {shippingCharge === 0 ? "FREE" : formatINR(shippingCharge)}
+                    <span className={`font-medium ${deliveryFee === 0 ? "text-green-700" : "text-gray-800"}`}>
+                      {deliveryFee === 0 ? "FREE" : formatINR(deliveryFee)}
                     </span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600">Estimated GST (18%):</span>
-                    <span className="font-medium text-gray-800">{formatINR(estimatedTax)}</span>
+                    <span className="font-medium text-gray-800">{formatINR(taxAmount)}</span>
                   </div>
                   <div className="border-t border-gray-200 pt-3 flex justify-between font-bold text-xl text-[#b12704]">
                     <span>Order Total:</span>
-                    <span>{formatINR(orderTotal)}</span>
+                    <span>{formatINR(finalTotal)}</span>
                   </div>
                 </div>
               </div>

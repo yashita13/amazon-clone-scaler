@@ -7,6 +7,7 @@ import { AuthProvider } from "@/context/AuthContext";
 import { WishlistProvider } from "@/context/WishlistContext";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
+import HorizontalRoleBar from "@/components/layout/HorizontalRoleBar";
 
 import { ToastProvider } from "@/context/ToastContext";
 
@@ -38,6 +39,7 @@ export default function RootLayout({
                 <main className="min-h-screen">
                   {children}
                 </main>
+                <HorizontalRoleBar />
                 <Footer />
               </CartProvider>
             </WishlistProvider>

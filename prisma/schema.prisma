@@ -28,17 +28,23 @@ model Product {
 }
 
 model Order {
-  id           String      @id @default(cuid())
-  status       OrderStatus @default(PENDING)
-  total        Float
-  createdAt    DateTime    @default(now())
-  updatedAt    DateTime    @updatedAt
-  address      String?
-  userEmail    String?
-  userName     String?
-  returnReason String?
-  returnType   String?
-  items        OrderItem[]
+  id              String      @id @default(cuid())
+  status          OrderStatus @default(PENDING)
+  total           Float
+  itemsTotal      Float       @default(0)
+  taxAmount       Float       @default(0)
+  deliveryFee     Float       @default(0)
+  guestId         String?
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  address         String?
+  userEmail       String?
+  userName        String?
+  paymentMethod   String?
+  paymentProvider String?
+  returnReason    String?
+  returnType      String?
+  items           OrderItem[]
 }
 
 model OrderItem {
@@ -51,10 +57,17 @@ model OrderItem {
   product   Product @relation(fields: [productId], references: [id])
 }
 
+enum Role {
+  USER
+  ADMIN
+  DELIVERY
+}
+
 model User {
   id        String   @id @default(cuid())
   email     String   @unique
   name      String
+  role      Role     @default(USER)
   createdAt DateTime @default(now())
   password  String
   phone     String

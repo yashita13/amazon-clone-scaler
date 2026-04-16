@@ -1,187 +1,89 @@
-# Amazon - Yashita Clone (Production Edition)
+# Amazon Clone - High-Fidelity E-commerce Prototype
 
-Welcome to the most advanced Amazon storefront clone, built with **Next.js 16**, **Tailwind CSS 4**, and **Prisma/Supabase**. This project is a high-fidelity demonstration of modern e-commerce UX, featuring deep search, personalized recommendations, and a robust logistics/return system.
+[Live Demo Experience] | [RBAC Management] | [Next.js 15+ App Router]
 
----
-
-## 🚀 Key Features
-
-### 👤 User Account & Profile
-- **Personalized Dashboard**: A centralized hub for managing orders, login security, and Prime benefits.
-- **Address Management**: Persistent address storage with visual map-based precise location selection.
-- **Account Security**: Secure login flow with OTP-based verification and session persistence.
-
-### 📍 Interactive Localization
-- **Map-Based Location**: A high-fidelity location picker with simulated map pinpointing for "Approximate" or "Precise" geographic context.
-- **Language Switcher**: Global UI language selection (EN, HI, TA, TE, KN) with demonstration-ready state management.
-
-### 🛒 Immersive Shopping UX
-- **Amazon-Grade Home Page**: Dynamic 2x2 category grids overlapping a responsive, auto-sliding carousel.
-- **Smart Product Recovery**: "Buy it Again" functionality integrated directly into order history and individual item views.
-- **High-Fidelity PDP**: Product Detail Pages featuring:
-    - Text-based Color and Size swatches.
-    - Detailed "Product Highlights" and metadata lists.
-    - EMI calculators and real-time bank offer highlights.
-
-### 🔍 Discovery & Personalization
-- **Intent-Driven Recommendations**: "Inspired by your search" cards that dynamically update based on recent user search history.
-- **Deep Search**: Backend-powered multi-field searching (Titles, Categories, Descriptions) with scroll-to-result anchors.
-- **Dynamic Filters**: Real-time sorting (price, rating, newest) and metadata filtering (Best Sellers, Limited Time Deals).
-
-### 📦 Logistics & Returns
-- **Tracking System**: Visual progress bar for order lifecycle (Ordered → Shipped → Out for Delivery → Delivered).
-- **Return & Exchange Request System**: Fully functional request flow with reason tracking and status persistence.
-- **Mailing Integration**: Automated purchase confirmation and OTP emails with Amazon-styled templates.
+An industry-grade demonstration of a modern e-commerce platform built with **Next.js 15+**, **Tailwind CSS 4**, and **Prisma/Supabase**. This project showcases advanced UI/UX patterns, robust authentication, and a production-ready Role-Based Access Control (RBAC) system.
 
 ---
 
-## 🏗️ System Architecture
+## 🔐 Advanced Role-Based Access Control (RBAC)
 
-### Search & Intent Flow
-```mermaid
-sequenceDiagram
-    participant User
-    participant Frontend as Next.js 16 Client
-    participant API as Next.js Server (force-dynamic)
-    participant DB as Supabase (PostgreSQL)
+The platform features a **fully functional RBAC system** protecting sensitive dashboards and API operations.
 
-    User->>Frontend: Enter Search Query
-    Frontend->>Frontend: Persistence Store Search Intent
-    Frontend->>API: GET /api/products?search=...
-    API->>DB: Prisma Query (ilike matches)
-    DB-->>API: Return Result Set
-    API-->>Frontend: JSON Response
-    Frontend-->>User: Update Results (Scroll to results container)
-```
+> [!TIP]
+> **Evaluation Mode Active**: For demo purposes, we have integrated a **Live Persona Switcher** in the sub-navbar and a horizontal **Evaluation Panel** above the footer. You can instantly swap between `USER`, `ADMIN`, and `DELIVERY` personas to test route protection and UI state transitions live.
 
-### Authentication Flow
-```mermaid
-sequenceDiagram
-    participant User
-    participant Frontend
-    participant API
-    participant Mailer
-    participant DB
-
-    User->>Frontend: Enter Sign-up Details
-    Frontend->>API: POST /api/auth/signup
-    API->>DB: Store Temp OTP & Data
-    API->>Mailer: Send OTP Email
-    Mailer-->>User: Receive Email
-    User->>Frontend: Enter OTP
-    Frontend->>API: POST /api/auth/verify
-    API->>DB: Create User Record
-    API-->>Frontend: Success Response (Demo Auto-Login)
-```
+### Personnel Personas:
+- 👤 **USER**: Standard customer access (Shopping, Cart, Checkout, Profile Tracking).
+- ⚙️ **ADMIN**: Full administrative oversight (Inventory control, Analytics, User management).
+- 🚚 **DELIVERY**: Specialized logistics view (Order tracking, delivery status updates, partner hub).
 
 ---
 
-## 📊 Database Schema
+## ⚡ Key Highlights & Innovations
 
-Our database is hosted on **Supabase** and managed via **Prisma ORM**.
+### 1. Parallel Meta-Search Engine
+- Fetches data from **DummyJSON** and **FakeStoreAPI** in parallel.
+- Provides a diverse, high-density catalog for evaluators without requiring a pre-seeded database.
+- Implements intelligent mapping for cross-provider product IDs.
 
-### Model Relationships
-```mermaid
-erDiagram
-    User ||--o{ Order : places
-    User ||--o{ Wishlist : "adds to"
-    User ||--o{ OTPVerification : "receives"
-    Order ||--|{ OrderItem : "contains"
-    Product ||--|{ OrderItem : "linked in"
-    Product ||--o{ Wishlist : "saved in"
+### 2. Standardized Commercial Logic
+- **Centralized Pricing**: All calculations (GST 18%, Delivery ₹40) are handled by a core utility shared across UI, API, and Email.
+- **Persistence**: Every order captures a financial snapshot (Items Total, Tax, Shipping) to ensure 100% consistency throughout the order lifecycle.
 
-    User {
-        string id PK
-        string email
-        string name
-        string phone
-        string password
-    }
+### 3. Persistent Guest Experience
+- **Guest Orders**: Non-logged-in users generate a persistent `guestId` in localStorage.
+- **History Parity**: Guests can view their order history and track fulfillment status just like registered users.
 
-    Product {
-        string id PK
-        string title
-        float price
-        int stock
-        float rating
-        bool isBestSeller
-        bool isLimitedTimeDeal
-    }
-
-    Order {
-        string id PK
-        string status
-        float total
-        string address
-        string returnReason
-        string returnType
-    }
-```
+### 4. High-Conversion Checkout
+- **Payment Ecosystem**: Integrated mock flows for **UPI (Paytm, GPay, PhonePe)**, **Credit Cards (Axis, SBI)**, and **Net Banking**.
+- **Intelligent UI**: Features "Mostly Used" and "Recently Used" tags for high-fidelity simulation.
 
 ---
 
-## 🗺️ Sitemap (Routes)
-
-| Route | Purpose | Access |
-| :--- | :--- | :--- |
-| `/` | Interactive Home Page | Public |
-| `/product/[id]` | Advanced Product Detail | Public |
-| `/cart` | Shopping Basket | Public |
-| `/checkout` | Secure Payment Flow | Protected |
-| `/profile` | User Dashboard & Addresses | Protected |
-| `/orders` | High-level Order History | Protected |
-| `/orders/[id]` | Order Tracking & Returns | Protected |
-| `/wishlist` | Saved Items List | Protected |
-| `/signin` / `/signup` | Authentication Gateways | Public |
-
----
-
-## 🔌 API Reference
-
-| Endpoint | Method | Description |
-| :--- | :--- | :--- |
-| `/api/products` | GET | List products with search/filter support |
-| `/api/orders` | POST | Create a new order (triggers email) |
-| `/api/orders/list` | GET | Fetch orders for a specific user |
-| `/api/orders/[id]` | GET | Fetch detailed order tracking data |
-| `/api/orders/[id]/return` | POST | Submit return/exchange request |
-| `/api/auth/signup` | POST | Initialize sign-up & send OTP |
-| `/api/auth/verify` | POST | Verify OTP & create user |
-
----
-
-## 🛠️ Technology Stack
+## 🛠️ Performance & Tech Stack
 
 | Layer | Technology |
 | :--- | :--- |
-| **Framework** | Next.js 16.2.3 (App Router + Turbopack) |
-| **Styling** | Tailwind CSS 4.0 (Neo-Amazon Design System) |
-| **Database** | Prisma + PostgreSQL (Supabase) |
-| **Deployment** | Vercel Optimized (`force-dynamic` APIs) |
-| **Environment** | Production-hardened via robust `.gitignore` |
+| **Framework** | Next.js 15.2+ (App Router, Turbopack, Middleware) |
+| **Styling** | Tailwind CSS 4.0 (Custom Amazon Design Tokens) |
+| **Database** | Prisma ORM + PostgreSQL on Supabase |
+| **Security** | Secure Cookies + JWT (JOSE) + Next.js Middleware |
+| **Mailer** | NodeMailer (Low-latency background processing) |
 
 ---
 
-## 📦 Production Setup
+## 📂 Sitemap & Dashboards
 
-1. **Environment Config**:
-   Create a `.env` in the root (Protected via gitignore):
-   ```env
-   DATABASE_URL="postgres://..."
-   DIRECT_URL="postgres://..."
-   EMAIL_USER="you@gmail.com"
-   EMAIL_PASS="your-app-password"
-   ```
+| Route | Accessibility | Features |
+| :--- | :--- | :--- |
+| `/` | Public | Parallel Search, Categories, Trending |
+| `/admin` | **ADMIN ONLY** | Stock Overviews, Admin Notifications |
+| `/delivery` | **PARTNER ONLY** | Logistics Hub, Status Updates |
+| `/profile` | Registered | Multi-Address Management, Map Pinpointing |
+| `/orders/[id]` | Public/Registered | Detailed Tracking & Post-Purchase Review |
 
-2. **Database Initialization**:
+---
+
+## 🏗️ Getting Started
+
+1. **Environmental configuration**:
+   Rename `.env.example` to `.env` and configure:
+   - `DATABASE_URL` (Supabase Connection String)
+   - `JWT_SECRET` (For secure session tokens)
+   - `EMAIL_USER`/`EMAIL_PASS` (For notifications)
+
+2. **Schema Synchronization**:
    ```bash
    npx prisma generate
    npx prisma db push
    ```
 
-3. **Build & Deploy**:
-   The project is configured for Vercel with dynamic route segments handled via `export const dynamic = "force-dynamic"` in all API routes.
+3. **Development Cycle**:
+   ```bash
+   npm run dev
+   ```
 
 ---
 
-Built with ❤️ by Yashita
+Built with ❤️ by **Yashita Bahrani** for High-Scale Personalization.

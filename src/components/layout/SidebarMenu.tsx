@@ -74,8 +74,8 @@ export default function SidebarMenu({ isOpen, onClose, categories }: SidebarMenu
               {/* Section: Shop by Category */}
               <div className="py-4 border-b border-gray-200">
                 <h3 className="px-8 text-lg font-bold mb-2">Shop by Category</h3>
-                {categories.slice(1, 8).map(cat => (
-                  <MenuItem key={cat} label={cat} href={`/?category=${encodeURIComponent(cat)}`} onClick={onClose} hasChevron />
+                {categories.map(cat => (
+                  cat !== "All Categories" && <MenuItem key={cat} label={cat} href={`/?category=${encodeURIComponent(cat)}`} onClick={onClose} hasChevron />
                 ))}
 
                 {/* Expandable Categories could go here */}

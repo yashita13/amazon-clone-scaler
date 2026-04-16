@@ -5,6 +5,7 @@ import { formatINR } from "@/lib/formatPrice";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { getOrCreateGuestId } from "@/lib/orderUtils";
 
 interface OrderItem {
   id: string;
@@ -34,17 +35,36 @@ export default function OrdersPage() {
 
   useEffect(() => {
     if (!isLoading && !user) {
-      router.push("/signin?redirect=/orders");
+      // For guests, we don't redirect to signin, we show their local history
+      // only if they have a guestId. If no user and no guestId, then maybe redirect.
     }
   }, [user, isLoading, router]);
 
   useEffect(() => {
-    if (!user) return;
-    fetch(`/api/orders/list?email=${encodeURIComponent(user.email)}`)
-      .then(r => r.json())
-      .then(data => setOrders(data.orders || []))
-      .finally(() => setFetching(false));
-  }, [user]);
+    const fetchOrders = async () => {
+      let query = "";
+      if (user && !user.id.includes("guest")) {
+        query = `email=${encodeURIComponent(user.email)}`;
+      } else {
+        const guestId = getOrCreateGuestId();
+        query = `guestId=${encodeURIComponent(guestId)}`;
+      }
+
+      try {
+        const res = await fetch(`/api/orders/list?${query}`);
+        const data = await res.json();
+        setOrders(data.orders || []);
+      } catch (e) {
+        console.error("Order fetch error", e);
+      } finally {
+        setFetching(false);
+      }
+    };
+
+    if (!isLoading) {
+      fetchOrders();
+    }
+  }, [user, isLoading]);
 
   if (isLoading || fetching) {
     return (
@@ -146,6 +166,15 @@ export default function OrdersPage() {
                   className="text-sm bg-[#FFD814] hover:bg-[#F7CA00] text-black font-medium py-1.5 px-4 rounded border border-[#FCD200] shadow-sm"
                 >
                   Buy it again
+                </button>
+                <Link 
+                  href={`/orders/${order.id}`} // In a real app, this would go to a specialized return flow
+                  className="text-sm bg-gray-50 hover:bg-gray-100 text-gray-800 font-medium py-1.5 px-4 rounded border border-gray-300 shadow-sm"
+                >
+                  Return or replace items
+                </Link>
+                <button className="text-sm bg-gray-50 hover:bg-gray-100 text-gray-800 font-medium py-1.5 px-4 rounded border border-gray-300 shadow-sm">
+                  Write a product review
                 </button>
               </div>
             </div>

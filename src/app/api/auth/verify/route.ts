@@ -1,6 +1,6 @@
-export const dynamic = "force-dynamic";
-import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { signJWT } from "@/lib/auth";
+import { cookies } from "next/headers";
 
 /**
  * POST /api/auth/verify
@@ -60,15 +60,32 @@ export async function POST(request: Request) {
       }
     });
 
-    return NextResponse.json(
+    // Create JWT
+    const token = await signJWT({ userId: user.id, role: user.role });
+
+    const response = NextResponse.json(
       {
         message: "Email verified and account created successfully.",
-        userId: user.id,
-        email: user.email,
-        name: user.name,
+        user: {
+          id: user.id,
+          email: user.email,
+          name: user.name,
+          role: user.role,
+        },
       },
       { status: 201 }
     );
+
+    // Set cookie
+    response.cookies.set("session", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 60 * 60 * 24, // 1 day
+      path: "/",
+    });
+
+    return response;
   } catch (error) {
     console.error("POST /api/auth/verify error:", error);
     return NextResponse.json(

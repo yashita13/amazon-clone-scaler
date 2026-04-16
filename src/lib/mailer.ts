@@ -4,6 +4,9 @@ import { prisma } from "./prisma";
 
 const transporter = nodemailer.createTransport({
   service: "gmail",
+  pool: true, // Reuse connections for "instant" delivery
+  maxConnections: 5,
+  maxMessages: 100,
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS,
@@ -22,17 +25,22 @@ export async function sendOrderEmail(
       return;
     }
 
-    const fullOrder = await prisma.order.findUnique({
-      where: { id: orderId },
-      include: {
-        items: {
-          include: { product: true }
+    let fullOrder;
+    if (typeof orderId === "string") {
+      fullOrder = await prisma.order.findUnique({
+        where: { id: orderId },
+        include: {
+          items: {
+            include: { product: true }
+          }
         }
-      }
-    });
+      });
+    } else {
+      fullOrder = orderId; // Support passing the full object
+    }
 
-    if (!fullOrder || fullOrder.items.length === 0) {
-      console.error("[EMAIL ERROR] Order not found or has no items:", orderId);
+    if (!fullOrder || !fullOrder.items || fullOrder.items.length === 0) {
+      console.error("[EMAIL ERROR] Order not found or has no items");
       return;
     }
 
@@ -108,9 +116,24 @@ export async function sendOrderEmail(
           <!-- Items -->
           ${itemsHtml}
           
-          <div style="display: flex; justify-content: space-between; font-weight: bold; font-size: 16px; margin-top: 20px;">
-            <span>Total</span>
-            <span>${formatINR(fullOrder.total)}</span>
+          <!-- Pricing Breakdown -->
+          <div style="border-top: 2px solid #eee; padding-top: 15px; margin-top: 10px;">
+            <div style="display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 5px; color: #565959;">
+              <span>Items Subtotal:</span>
+              <span>${formatINR(fullOrder.itemsTotal || (fullOrder.total / 1.18))}</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 5px; color: #565959;">
+              <span>Shipping & Handling:</span>
+              <span>${(fullOrder.deliveryFee > 0) ? formatINR(fullOrder.deliveryFee) : 'FREE'}</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 15px; color: #565959;">
+              <span>Estimated GST (18%):</span>
+              <span>${formatINR(fullOrder.taxAmount || 0)}</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; font-weight: bold; font-size: 18px; color: #B12704; border-top: 1px solid #eee; padding-top: 10px;">
+              <span>Order Total:</span>
+              <span>${formatINR(fullOrder.total)}</span>
+            </div>
           </div>
 
         </div>
@@ -126,6 +149,12 @@ export async function sendOrderEmail(
       to: email,
       subject: `Amazon - Order Confirmation for ${fullOrder.items[0].product.title.substring(0, 30) + '...'}`,
       html: htmlBody,
+      priority: 'high',
+      headers: {
+        'X-Priority': '1 (Highest)',
+        'X-MSMail-Priority': 'High',
+        'Importance': 'High'
+      }
     });
     console.log(`[EMAIL SENT] Order confirmation sent to ${email}`);
   } catch (error) {
@@ -145,6 +174,12 @@ export async function sendOtpEmail(email: string, code: string) {
       to: email,
       subject: "Your OTP Verification Code",
       text: `Your One-Time Password is: ${code}. It expires in 10 minutes.`,
+      priority: 'high',
+      headers: {
+        'X-Priority': '1 (Highest)',
+        'X-MSMail-Priority': 'High',
+        'Importance': 'High'
+      }
     });
     console.log(`[EMAIL SENT] OTP sent to ${email}`);
   } catch (error) {

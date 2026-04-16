@@ -194,6 +194,22 @@ export default function Navbar() {
                     <p className="text-[10px] sm:text-[11px] text-gray-300 leading-none truncate max-w-[60px] sm:max-w-none">Hi, {user.name?.split(' ')[0] || user.email.split('@')[0]}</p>
                     <p className="font-bold text-xs sm:text-sm flex items-center gap-1">Profile</p>
                   </Link>
+                  
+                  {/* Role Specific Quick Links */}
+                  {(user.role === "ADMIN" || user.role === "DELIVERY") && (
+                    <div className="absolute top-full left-0 mt-1 bg-white shadow-lg rounded-sm border border-gray-200 py-2 min-w-[160px] hidden group-hover:block z-[200]">
+                      {user.role === "ADMIN" && (
+                        <Link href="/admin" className="block px-4 py-2 text-xs text-gray-700 hover:bg-gray-100 font-bold border-b border-gray-50">
+                          ⚙️ ADMIN DASHBOARD
+                        </Link>
+                      )}
+                      {(user.role === "ADMIN" || user.role === "DELIVERY") && (
+                        <Link href="/delivery" className="block px-4 py-2 text-xs text-gray-700 hover:bg-gray-100 font-bold">
+                          🚚 DELIVERY HUB
+                        </Link>
+                      )}
+                    </div>
+                  )}
                 </div>
               ) : (
                 <Link href="/signin" className="cursor-pointer border border-transparent hover:border-white p-1 rounded-sm">
@@ -210,15 +226,12 @@ export default function Navbar() {
 
             <Link href="/wishlist" className="flex items-center cursor-pointer border border-transparent hover:border-white py-1 px-1 sm:px-2 rounded-sm relative group">
               <div className="relative pt-1">
-                <Heart size={24} className={`sm:hidden ${wishlistCount > 0 ? "fill-red-500 text-red-500" : ""}`} />
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-7 h-7 hidden sm:block">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.015-4.5-4.5-4.5-1.74 0-3.24 1-4 2.44-.76-1.44-2.26-2.44-4-2.44C5.015 3.75 3 5.765 3 8.25c0 6.75 9 11.25 9 11.25s9-4.5 9-11.25Z" />
-                </svg>
-                <span className="absolute -top-1 -right-2 text-[#e47911] font-bold text-xs px-1 bg-[#131921] rounded-full">
+                <Heart size={24} className={wishlistCount > 0 ? "fill-red-500 text-red-500" : "text-white"} />
+                <span className="absolute -top-1 -right-2 text-[#e47911] font-bold text-[10px] px-1 bg-[#131921] rounded-full border border-[#131921]">
                   {mounted ? wishlistCount : 0}
                 </span>
               </div>
-              <span className="font-bold mt-2 ml-1 hidden lg:block">Wishlist</span>
+              <span className="font-bold mt-2 ml-1 hidden lg:block text-white">Wishlist</span>
             </Link>
 
             <Link href="/cart" className="flex items-center cursor-pointer border border-transparent hover:border-white py-1 px-1 sm:px-2 rounded-sm relative">
@@ -274,6 +287,8 @@ export default function Navbar() {
               {link.label}
             </Link>
           ))}
+          
+          <div className="flex-grow"></div>
         </div>
       </header>
 

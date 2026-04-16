@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useEffect, useReducer } from "react";
 import { Product } from "@prisma/client";
 import { useToast } from "@/context/ToastContext";
+import { calculateOrderPrices, PricingBreakdown } from "@/lib/orderUtils";
 
 export interface CartItem {
   product: Product;
@@ -68,6 +69,7 @@ interface CartContextType {
   clearCart: () => void;
   cartTotal: number;
   itemCount: number;
+  pricing: PricingBreakdown;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -117,6 +119,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   const itemCount = state.items.reduce((count, item) => count + item.quantity, 0);
 
+  const pricing = calculateOrderPrices(cartTotal);
+
   return (
     <CartContext.Provider
       value={{
@@ -127,6 +131,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         clearCart,
         cartTotal,
         itemCount,
+        pricing,
       }}
     >
       {children}

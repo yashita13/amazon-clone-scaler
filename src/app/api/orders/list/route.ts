@@ -5,13 +5,21 @@ import { prisma } from "@/lib/prisma";
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const email = searchParams.get("email");
+  const guestId = searchParams.get("guestId");
 
-  if (!email) {
-    return NextResponse.json({ error: "Email is required" }, { status: 400 });
+  if (!email && !guestId) {
+    return NextResponse.json({ error: "Email or GuestID is required" }, { status: 400 });
+  }
+
+  const where: any = {};
+  if (email) {
+    where.userEmail = email;
+  } else if (guestId) {
+    where.guestId = guestId;
   }
 
   const orders = await prisma.order.findMany({
-    where: { userEmail: email },
+    where,
     include: {
       items: {
         include: { product: true }
