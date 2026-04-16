@@ -92,7 +92,7 @@ User → Add to Cart
 ##  Supabase ER Diagram
 
 ```md
-![Database Schema](./public/supabase-schema.png)
+![Database Schema](./assets/supabase-schema.png)
 ```
 
 ---
