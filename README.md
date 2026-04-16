@@ -1,104 +1,390 @@
-# 🛒 Amazon Clone - Engineered for Precision & Scale
+# 🛒 Amazon Clone – Fullstack E-Commerce Platform
 
-This isn't just a clone; it's a high-fidelity e-commerce laboratory. I built this platform to push the boundaries of **Next.js 15**, **Tailwind CSS 4**, and **Prisma/PostgreSQL**, creating a system that simulates real-world production challenges—from financial consistency to cross-border logistics.
-
----
-
-## 🚀 My Vision & Core Architecture
-
-When I started this project, I wanted to move beyond the "Basic CRUD" app. I engineered a **Server-First Architecture** using the Next.js App Router to ensure maximum performance and SEO readiness.
-
-- **The Scaler Objective**: I designed every component to be horizontally scalable. Whether it's the parallel API fetching for products or the session-less guest tracking, the architecture is built to handle high-density traffic.
-- **Why I Chose the Tech**:
-    - **Next.js 15**: For its cutting-edge streaming and server actions.
-    - **Tailwind 4**: For the performance gains and utility-first precision.
-    - **Prisma + Supabase**: To provide a robust, relational backbone with real-time capabilities.
+ **Live Demo:** https://amazon-yashita-scaler.vercel.app
+ 
+ **GitHub Repo:** https://github.com/yashita13/amazon-yashita-scaler
 
 ---
 
-## 🛡️ Identity & Role-Based Access Control (RBAC)
+#  Overview
 
-I implemented a sophisticated **Triple-Persona System** that dynamically changes the entire application's behavior based on the authenticated role.
+This project is a **fully functional Amazon-like e-commerce platform** built as part of the **Scaler SDE Intern Assignment**.
 
-### 👤 The Personas I Engineered:
-1.  **CUSTOMER (USER)**: The standard marketplace experience—discovery, cart management, and secure checkout.
-2.  **ADMIN**: A powerful oversight dashboard for inventory management and platform analytics.
-3.  **DELIVERY PARTNER**: A specialized logistics hub built for tracking shipments and updating delivery statuses.
+It replicates Amazon’s:
 
-### 🔐 How I Secured It:
-- **Middleware-Level Protection**: I wrote a custom `middleware.ts` that intercepts every request and validates a JWT session. If an unauthorized user tries to access `/admin`, they are instantly bounced to a 403 page.
-- **The Evaluation Suite**: For demo purposes, I built a horizontal **Evaluation Panel** at the footer. This allows anyone to instantly hot-swap between roles to test the route protection live.
-- **Intelligent Persona Reset**: I implemented a mandatory reset logic in the `AuthContext` to ensure that whenever you land on the Home page, the site automatically reverts to the `USER` persona, preventing unintended administrative session leaks.
+* UI/UX patterns
+* Product browsing experience
+* Cart & checkout flow
+* Order lifecycle
 
----
+Additionally, I implemented **advanced real-world enhancements** like:
 
-## 📦 Guest Order Persistence & "Ghost" Tracking
-
-I realized that forcing a login kills conversion. I engineered a **Persistent Guest Lifecycle** that bridges the gap between anonymous browsing and registered loyalty.
-
-- **`getOrCreateGuestId()`**: I wrote this utility to generate a unique, timestamped `gst_` ID preserved in `localStorage`. 
-- **Ghost Tracking**: Even without an account, I allow guests to place orders. I store these orders in the database linked by their `guestId` so their journey isn't lost.
-- **History Parity**: I refactored the `/orders` page to search the database for this specific `guestId` if no user session is present. This means a guest can leave the site, come back later, and still see their full order history flawlessly.
+* RBAC (Role-Based Access Control)
+* Guest user order persistence
+* Email notifications
+* Consistent pricing system
 
 ---
 
-## 💰 Financial Integrity & Pricing Engine
+# ⚙️ Tech Stack
 
-E-commerce lives and dies by its numbers. I built a **Centralized Pricing Engine** (`src/lib/orderUtils.ts`) to serve as the single source of truth for every rupee on the platform.
-
-### My Golden Rules:
-- **Taxation (GST 18%)**: I implemented a hard-coded 18% GST calculation that is recalculated on the backend during order creation to prevent any client-side price manipulation.
-- **Dynamic Shipping**: I built a threshold-based logic—₹40 flat delivery for small orders, and **FREE** shipping automatically triggered for orders over ₹500.
-- **The Consistency Guarantee**: Whether you are looking at the Catalog, the Checkout summary, the database record, or the Confirmation Email, the numbers are guaranteed to match 100%.
-
----
-
-## 🔍 Multi-Source Global Search
-
-I wanted the search to feel alive and vast. I implemented a **Parallel Data Aggregator** that fetches from multiple external APIs simultaneously.
-
-- **Hybrid Catalog**: My search engine fires concurrent requests to **DummyJSON** and **FakeStoreAPI** using `Promise.all`.
-- **Smart Mapping**: I wrote `upsert` logic to map external IDs (`ext_dj_` and `ext_fs_`) into my local schema on-the-fly. This allows the platform to showcase thousands of products without needing a pre-seeded database.
+| Layer      | Technology                              |
+| ---------- | --------------------------------------- |
+| Frontend   | Next.js (App Router), React, TypeScript |
+| Backend    | Next.js API Routes                      |
+| Database   | PostgreSQL (Supabase)                   |
+| ORM        | Prisma                                  |
+| Styling    | Tailwind CSS                            |
+| Deployment | Vercel                                  |
+| Email      | Nodemailer / Resend                     |
+| Icons      | Lucide React                            |
 
 ---
 
-## 🗺️ Location & Address Intelligence
+#  Core Features (Assignment Requirements)
 
-I integrated a **Map-Centric Address System** to ensure delivery accuracy and a premium user experience.
+## 1. Product Listing Page
 
-- **Precise Map Pinpointing**: I built a `LocationModal` that allows users to drop a pin on a map to extract their exact delivery coordinates.
-- **Manual-to-Auto Sync**: I built the bridge between the interactive map selection and the manual address forms. Users can select a location via map, and the coordinates are automatically transformed into a formatted address string for the checkout flow.
+* Grid layout (Amazon-style)
+* Product cards:
 
----
-
-## 📧 Smart Notification System (SMTP)
-
-I engineered a high-performance mailing system to handle order confirmations and OTPs with zero delivery lag.
-
-- **Connection Pooling**: I configured the `nodemailer` transporter to use pooling and reusable connections, making email dispatch virtually instant.
-- **High-Priority Headers**: To ensure my emails bypass filters and land in the "Primary" tab, I implemented low-level MIME headers: 
-    - `X-Priority: 1 (Highest)`
-    - `X-MSMail-Priority: High`
-    - `Importance: High`
-- **Secure OTP Lifecycle**: I built a 6-digit verification system that stores encrypted OTPs with a 10-minute expiration buffer, protecting the registration flow.
+  * Image
+  * Title
+  * Price
+  * Add to Cart
+* Search functionality
+* Category filtering
 
 ---
 
-## 🏗️ Getting Started
+## 2. Product Detail Page
 
-I've made the setup process as streamlined as possible:
-
-1.  **Configure `.env`**: Add your `DATABASE_URL`, `JWT_SECRET`, and SMTP credentials.
-2.  **Sync Schema**:
-    ```bash
-    npx prisma generate  # I use this to keep TS types in sync
-    npx prisma db push   # Push the latest RBAC & Order schemas
-    ```
-3.  **Run Development**:
-    ```bash
-    npm run dev
-    ```
+* Product info & description
+* Price & stock
+* Add to Cart
+* Buy Now
 
 ---
 
-Built with ❤️ by **Yashita Bahrani** — Engineering the Future of E-commerce.
+## 3. Shopping Cart
+
+* Add/remove items
+* Update quantity
+* Price summary
+* Subtotal calculation
+
+---
+
+## 4. Checkout & Order Placement
+
+* Shipping address
+* Order summary
+* Place order
+* Order confirmation
+
+---
+
+#  Bonus Features (Implemented)
+
+## 🔐 Role-Based Access Control (RBAC)
+
+* Roles:
+
+  * USER (default)
+  * ADMIN
+  * DELIVERY
+* UI Role Switcher (for demo)
+* Route protection + API validation
+
+---
+
+## 👤 Guest User System (Major Enhancement)
+
+* No login required (as per assignment)
+* Persistent `guestId` via localStorage
+* Orders linked to guest identity
+* Fixes:
+
+  * Email vs Website order mismatch
+
+---
+
+## 📧 Email Notifications
+
+* Instant order confirmation email
+* Includes:
+
+  * Order items
+  * GST breakdown
+  * Total price
+* UI shows:
+
+  > "Order placed successfully. Email sent to ___"
+
+---
+
+## 💰 Pricing System (Production-Level Fix)
+
+* Centralized pricing logic:
+
+  * Items Total
+  * Delivery Fee
+  * GST (18%)
+  * Final Total
+
+✔ Ensures:
+
+* Same values on:
+
+  * Checkout page
+  * Order page
+  * Email
+
+---
+
+## ❤️ Wishlist System
+
+* Add/remove wishlist items
+* Persistent storage
+
+---
+
+## 🔍 Smart Search (External API Integration)
+
+* Fetch products from:
+
+  * DummyJSON API
+  * Local DB
+* Merge results dynamically
+
+---
+
+## 🎨 UI/UX Enhancements
+
+* Amazon-like navbar & layout
+* Responsive design
+* Smooth transitions
+* Loading states
+
+---
+
+# 🧠 System Architecture
+
+## 🔷 High-Level Architecture
+
+```
+Client (Next.js UI)
+        ↓
+Next.js API Routes (Backend)
+        ↓
+Prisma ORM
+        ↓
+PostgreSQL (Supabase)
+```
+
+---
+
+## 🔷 Data Flow (Order Placement)
+
+```
+User → Checkout → API (/api/orders)
+      → Calculate totals
+      → Save order (DB)
+      → Send email
+      → Return response
+      → UI success message
+```
+
+---
+
+# 🗄️ Database Schema
+
+## 🔷 ER Diagram (Simplified)
+
+```
+User ────< Order ────< OrderItem >──── Product
+   │
+   └──── Wishlist ────> Product
+```
+
+---
+
+## 🔷 Tables Overview
+
+### 🧑 User
+
+| Field | Type                    |
+| ----- | ----------------------- |
+| id    | text                    |
+| email | text                    |
+| role  | USER / ADMIN / DELIVERY |
+
+---
+
+### 📦 Order
+
+| Field       | Description    |
+| ----------- | -------------- |
+| id          | Order ID       |
+| status      | Order status   |
+| total       | Final price    |
+| guestId     | Guest tracking |
+| itemsTotal  | Product cost   |
+| deliveryFee | Shipping       |
+| taxAmount   | GST            |
+
+---
+
+### 🧾 OrderItem
+
+| Field     | Description     |
+| --------- | --------------- |
+| quantity  | Number of items |
+| unitPrice | Price per item  |
+
+---
+
+### 🛍️ Product
+
+| Field             | Description   |
+| ----------------- | ------------- |
+| title             | Product name  |
+| price             | Current price |
+| isBestSeller      | Flag          |
+| isLimitedTimeDeal | Flag          |
+
+---
+
+### ❤️ Wishlist
+
+| Field     | Description |
+| --------- | ----------- |
+| userId    | Owner       |
+| productId | Product     |
+
+---
+
+### 🔐 OTPVerification
+
+* Used for auth/verification system
+
+---
+
+# 📊 Pricing Logic (Standardized)
+
+Example:
+
+```
+Items: ₹129.99
+Delivery: ₹40
+GST (18%): ₹23.40
+-------------------
+Total: ₹193.39
+```
+
+✔ Same logic used across:
+
+* UI
+* Backend
+* Email
+
+---
+
+# 🔐 RBAC Architecture
+
+```
+RoleContext (Frontend)
+        ↓
+Middleware (Route Protection)
+        ↓
+API Validation (Backend)
+```
+
+---
+
+# 🚀 Key Design Decisions
+
+## 1. Guest User Identity
+
+Instead of login:
+
+* Used `guestId`
+* Ensures order consistency
+
+---
+
+## 2. Centralized Pricing
+
+Avoid mismatch bugs:
+
+* Calculated once in backend
+* Reused everywhere
+
+---
+
+## 3. UI Role Switcher
+
+* Allows evaluator to test:
+
+  * ADMIN
+  * DELIVERY
+* No need for multiple logins
+
+---
+
+# ⚠️ Assumptions
+
+* Default user is logged in (as per assignment)
+* Payments are simulated
+* Email service is mocked or simplified
+
+---
+
+#  Setup Instructions
+
+```bash
+git clone <repo>
+cd project
+npm install
+npx prisma generate
+npm run dev
+```
+
+---
+
+#  Deployment
+
+* Frontend: Vercel
+* Database: Supabase
+
+---
+
+#  Evaluation Highlights
+
+✔ Functional correctness
+✔ Amazon-like UI
+✔ Strong DB design
+✔ Clean code structure
+✔ Real-world enhancements
+
+---
+
+#  Extra Enhancements (Beyond Assignment)
+
+* RBAC system
+* Guest user persistence
+* Email integration
+* Pricing consistency fix
+* External API product search
+* Hydration error fixes
+* Production-ready architecture
+
+---
+
+#  Final Note
+
+This project goes beyond assignment requirements by incorporating **real-world system design patterns**, making it scalable, maintainable, and production-ready.
+
+---
+
+ *Built with focus on real-world engineering practices, not just assignment completion.*
