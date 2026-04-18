@@ -23,15 +23,15 @@ It replicates Amazon’s:
 
 Beyond the assignment, this project includes **real-world production features**:
 
-* 🔐 Role-Based Access Control (RBAC)
-* 👤 Guest User Persistence System
-* 📧 Instant Email Notifications (Order + OTP)
-* 💰 Centralized Pricing Engine (GST synced)
-* 🔍 Multi-source Search (DB + APIs)
-* 📦 Order Management (Return / Exchange / Buy Again)
-* 📍 Location Selection (Map-based)
-* 🚚 Delivery Agent Dashboard
-* ❤️ Wishlist & Save for Later system
+* 🔐 **Role-Based** Access Control (RBAC) -> [User, Admin, Delivery Agent]
+* 👤 **Guest User** Persistence System -> [order history shown without login too]
+* 📧 Instant **Email** Notifications (Order + OTP)
+* 💰 Centralized **Pricing** Engine (GST synced)
+* 🔍 Multi-source **Dynamic Search** (DB + APIs)
+* 📦 Order Management (**Return / Exchange / Buy Again**)
+* 📍 **Location** Selection (Map-based)
+* 🚚 **Delivery Agent** & **Admin** Dashboard
+* ❤️ **Wishlist & Save** for Later system
 
 ---
 
